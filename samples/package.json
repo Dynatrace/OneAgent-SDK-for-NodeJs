@@ -1,0 +1,22 @@
+{
+  "name": "sdksamples",
+  "version": "1.0.0",
+  "description": "Samples showing API for OneAgent SDK",
+  "engines": {
+    "node": ">= 8.0.0"
+  },
+  "scripts": {
+    "remotecall": "node RemoteCall/OutgoingRemoteCallSample.js",
+    "database": "node Database/DatabaseRequestSample.js"
+  },
+  "dependencies": {
+    "@dynatrace/oneagent-sdk": "1.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dynatrace/OneAgent-SDK-for-NodeJs.git"
+  },
+  "author": "Dynatrace",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/Dynatrace/OneAgent-SDK-for-NodeJs#readme"
+}
