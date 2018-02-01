@@ -1,4 +1,4 @@
-**Disclaimer: This SDK is currently in early access and still work in progress.**
+**Disclaimer: This SDK is currently in early access and still work in progress and requires OneAgent version 1.137 or higher.**
 
 # Node.js SDK for Dynatrace OneAgent
 
@@ -270,9 +270,9 @@ The values of constant `DatabaseVendor` may be used as input for `traceSQLDataba
 
 The method `getCurrentState()` returns the current status of SDK. Valid values are available via constant object `SDK.SDKState`:
 
-- `ACTIVE` SDK is connected to agent and capturing data.
-- `TEMPORARILY_INACTIVE` SDK is connected to agent, but capturing is disabled. In this state, SDK user can skip creating SDK transactions and save CPU time. SDK state should be checked regularly as it may change at every point of time.
-- `PERMANENTLY_INACTIVE` SDK isn't connected to agent. So it will never capture data. This SDK state will never change in current JVM life time. It is good practice to never call any SDK api and safe CPU time therefore.
+- `ACTIVE` SDK is connected to OneAgent and capturing data.
+- `TEMPORARILY_INACTIVE` SDK is connected to OneAgent, but capturing is disabled. It is good practice to skip creating SDK transactions to save resources. The SDK state should be checked regularly as it may change at every point in time.
+- `PERMANENTLY_INACTIVE` SDK isn't connected to OneAgent, so it will never capture data. This SDK state will never change during the lifetime of the process. It is good practice to never call any SDK API to save resources.
 
 #### Set callbacks for logging
 
@@ -309,7 +309,7 @@ some.asyncFunction(someParam, Api.passContext(function(err, result) {
 ### Please Note
 
 - Make sure that this module is required after Dynatrace OneAgent
-- Using this module will not cause any errors if no agent is present (e.g. in testing)
+- Using this module will not cause any errors if no OneAgent is present (e.g. in testing)
 - The wrapping via `passContext()` needs to happen call time of the corresponding sync call
 
 ```js
