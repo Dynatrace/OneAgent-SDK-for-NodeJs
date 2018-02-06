@@ -1,0 +1,14 @@
+{
+	"extends": "../tsconfig-common.json",
+	"compilerOptions": {
+		"declaration": false,
+		"outDir": "../build/transpiled",
+		"sourceMap": true,
+		"allowJs": true
+	},
+	"include": [
+		"../src/**/*.ts",
+		"**/*.ts",
+		"../samples/*"
+	]
+}

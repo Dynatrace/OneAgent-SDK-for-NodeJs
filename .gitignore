@@ -1,2 +1,5 @@
-.vscode/
+.npmrc
+*.tgz
+build/
+lib/
 node_modules/

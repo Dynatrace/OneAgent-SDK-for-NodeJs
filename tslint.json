@@ -1,0 +1,74 @@
+{
+	"extends": "tslint:recommended",
+	"rules": {
+		"align": [
+			true,
+			"elements",
+			"members",
+			"statements"
+		],
+		"comment-format": false,
+		"no-empty-interface": false,
+		"indent": [
+			true,
+			"tabs"
+		],
+		"interface-name": false,
+		"jsdoc-format": false,
+		"max-line-length": [
+			true,
+			200
+		],
+		"max-classes-per-file": false,
+		"member-ordering": [
+			true,
+			{
+				"order": [
+					"public-constructor",
+					"public-static-method",
+					"public-static-field",
+					"public-instance-method",
+					"public-instance-field",
+					"protected-constructor",
+					"protected-static-method",
+					"protected-static-field",
+					"protected-instance-method",
+					"protected-instance-field",
+					"private-constructor",
+					"private-static-method",
+					"private-static-field",
+					"private-instance-method",
+					"private-instance-field"
+				]
+			}
+		],
+		"no-consecutive-blank-lines": [
+			true,
+			5
+		],
+		"object-literal-shorthand": false,
+		"object-literal-sort-keys": false,
+		"ordered-imports": false,
+		"trailing-comma": [
+			true,
+			{
+				"singleline": "never",
+				"multiline": "never"
+			}
+		]
+	},
+	"jsRules": {
+		"max-line-length": [
+			true,
+			200
+		],
+		"object-literal-sort-keys": false,
+		"trailing-comma": [
+			true,
+			{
+				"singleline": "never",
+				"multiline": "never"
+			}
+		]
+	}
+}
