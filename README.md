@@ -385,7 +385,7 @@ The Dynatrace OneAgent SDK for Node.Js is currently in beta. Please report issue
 
 ## Release Notes
 
-|Version|Date       |Description    |
+|Version|Date       |Description         |
 |:------|:----------|:-------------------|
-|1.0.2  |03.2018    |early access to beta|
-|1.0.1  |01.2018    |Initial release|
+|1.0.3  |03.2018    |early access to beta|
+|1.0.1  |01.2018    |Initial release     |
