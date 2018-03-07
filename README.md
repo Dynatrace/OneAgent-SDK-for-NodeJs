@@ -1,4 +1,4 @@
-**Disclaimer: This SDK is currently in early access and still work in progress and requires OneAgent version 1.137 or higher.**
+**Disclaimer: This SDK is currently in beta and still work in progress and requires OneAgent version 1.137 or higher.**
 
 # Node.js SDK for Dynatrace OneAgent
 
