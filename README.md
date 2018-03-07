@@ -22,7 +22,7 @@ A high level documentation/description of OneAgent SDK concepts is available at 
 
 ### Get an Api object
 
-The first step is to aquire an OneAgent SDK API object by calling `createInstance()`. The resulting object holds methods to create tracers, administrative methods (e.g. check SDK state, install logging callbcacks) and `passContext()`. Every call to `createInstance()` will return a new API object allowing the user to install seperate logging callbacks for seperate use cases.
+The first step is to acquire an OneAgent SDK API object by calling `createInstance()`. The resulting object holds methods to create tracers, administrative methods (e.g. check SDK state, install logging callbacks) and `passContext()`. Every call to `createInstance()` will return a new API object allowing the user to install separate logging callbacks for separate use cases.
 
 ```js
 const Sdk = require('@dynatrace/oneagent-sdk');
@@ -105,7 +105,7 @@ If the specific information like host/socketPath/... is not available the proper
 - `channelType` Specifies the channel type (e.g. TCP/IP, IN_PROCESS,... ) used. Valid values are available via [ChannelType](#channel-type-constants))
 
 The result of `traceOutgoingRemoteCall()` is a tracer object to be used for further operations related to this trace (see [Common characteristics of tracers](#common-characteristics-of-tracers) for details).
-As an outgoing remote call is _taggable_ a dynatrace tag shall be created from tracer after it has been started and embedded to the remote call message content.
+As an outgoing remote call is _taggable_ a Dynatrace tag shall be created from tracer after it has been started and embedded to the remote call message content.
 
 **Example**
 
@@ -144,7 +144,7 @@ An incoming remote call is traced by calling `traceIncomingRemoteCall()` passing
 - `serviceName` Mandatory - a string holding the name of the remote service
 - `serviceEndpoint` Mandatory - a string describing the logical endpoint of the remote service
 - `protocolName` Optional - a string describing the protocol used (e.g. Protobuf, GIOP,...)
-- `dynatraceTag` - a `string` or `Buffer` holding the received dynatrace tag recevied
+- `dynatraceTag` - a `string` or `Buffer` holding the received Dynatrace tag received
 
 The result of this call is a tracer object to be used for further operations related to this trace (see [Common characteristics of tracers](#common-characteristics-of-tracers)).
 
@@ -184,9 +184,9 @@ async function tracedMessageHandler(message) {
 
 The life-cycle of a tracer is as follows:
 
-1. Create a trace using the `traceXXX` method matching to your use case. For incoming taggable traces pass the received dynatrace tag (if present) to the `traceXXX` method.
+1. Create a trace using the `traceXXX` method matching to your use case. For incoming taggable traces pass the received Dynatrace tag (if present) to the `traceXXX` method.
 1. Start the trace which in turn invokes and times the given handler function.
-1. For outgoing taggable traces fetch a dynatrace tag and include it to the message sent out.
+1. For outgoing taggable traces fetch a Dynatrace tag and include it to the message sent out.
 1. Optional mark the traced operation as failed via a call to `error()`
 1. End the trace once the operation is done. For outgoing traces you may pass an callback to be included in this trace.
 
@@ -197,17 +197,17 @@ Each tracer offers following methods:
 - `error(err)` Mark trace as failed and attach an error object. Shall be call at max once per trace. Does not end the trace! Returns the tracer itself.
 - `end()` End the trace.
 
-Tracers for outgoing requests additionally offer enhanced methods to end a trace which allow to include the followup callback to the PurePath of this trace.
+Tracers for outgoing requests additionally offer enhanced methods to end a trace which allow to include the follow-up callback to the PurePath of this trace.
 
 - `end(callback, ...args)` End the trace like `end()` but additionally calls the passed callback with given arguments. The return value from callback is forwarded to caller of `end`.
-- `endWithContext(callback, thisObj, ...args)` like `end()` above but with the possiblity to specify the `this` context for the callback.
+- `endWithContext(callback, thisObj, ...args)` like `end()` above but with the possibility to specify the `this` context for the callback.
 
 Tracers for outgoing taggable requests additionally offer following methods to get a _dynatrace tag_ to be sent to remote service after the trace was started:
 
-- `getDynatraceStringTag()` returns a dynatrace tag endcoded as `string`
-- `getDynatraceByteTag()` returns a dynatrace tag binary encoded as `Buffer`
+- `getDynatraceStringTag()` returns a Dynatrace tag encoded as `string`
+- `getDynatraceByteTag()` returns a Dynatrace tag binary encoded as `Buffer`
 
-This dynatrace tag needs to be embedded into the message sent to remote service. Depending on the concrete protcol used the `string` or binary representation may fit better and it's up to the user to decide which variant to use.
+This Dynatrace tag needs to be embedded into the message sent to remote service. Depending on the concrete protocol used the `string` or binary representation may fit better and it's up to the user to decide which variant to use.
 On incoming service this tag needs to be extracted by the user and passed to the corresponding `traceXXX` method using the `dynatraceTag` property of the arguments to allow linking of outgoing and the corresponding incoming trace.
 
 The tracer objects returned by above methods are always valid even if there is no OneAgent present or no trace is created for whatever reason. In this case the methods are still present to avoid the need of extra checking in client code.
@@ -221,7 +221,7 @@ The values of constant `ChannelType` specify the type of the transport channel u
 - `TCP_IP` Communication via TCP/IP
 - `UNIX_DOMAIN_SOCKET` Communication via UNIX domain socket
 - `NAMED_PIPE` Communication via named pipe
-- `IN_PROCESS` Communication is some mechanism withing current process (e.g. via files,...)
+- `IN_PROCESS` Communication is some mechanism within current process (e.g. via files,...)
 - `OTHER` To be used for any other channel type
 
 ### Constants for database vendors
@@ -313,8 +313,8 @@ some.asyncFunction(someParam, Api.passContext(function(err, result) {
 - The wrapping via `passContext()` needs to happen call time of the corresponding sync call
 
 ```js
-// This will *NOT* work as transactional context at calltime of some.asyncFunction() is not preserved
-// instead the transactional context at definition of doSomething() is perserved which is not
+// This will *NOT* work as transactional context at call time of some.asyncFunction() is not preserved
+// instead the transactional context at definition of doSomething() is preserved which is not
 // related to the relevant transaction triggered by calling some.asyncFunction().
 const wrappedFunction = dta.passContext(someFunction);
 function doSomething() {
@@ -331,9 +331,9 @@ function doSomething() {
 
 ### What is transactional context
 
-[Dynatrace's patented PurePath Technology®](https://www.dynatrace.com/en_us/application-performance-management/products/purepath-technology.html) captures timing and code level context for *all* transactions,
+[Dynatrace patented PurePath Technology®](https://www.dynatrace.com/en_us/application-performance-management/products/purepath-technology.html) captures timing and code level context for *all* transactions,
 end-to-end, from user click, across all tiers, to the database of record and back.
-Technically this means that Dynatrace adds transactional context to any inbound-, outbound- and function call of an application.
+Technically this means that Dynatrace adds transactional context to any inbound and outbound function calls of an application.
 
 ### What does this mean for Node.js applications
 
@@ -358,7 +358,7 @@ collection.findOne({_id: doc_id}, callback);
 
 After `collection.findOne()` is executed asynchronously `callback()` will be called.
 `callback()` again contains an asynchronous call `http.get()` which performs an outbound HTTP request.
-If there is a current transactional context with an ongoing trace, Dynatrace OneAgent will transparently add a HTTP header containing a dynatrace tag to this outbound request.
+If there is a current transactional context with an ongoing trace, Dynatrace OneAgent will transparently add a HTTP header containing a Dynatrace tag to this outbound request.
 The next tier - if instrumented with OneAgent - will continue this trace then.
 
 Without further intervention any transactional context would get lost between asynchronous invocation and a callback.
@@ -377,14 +377,15 @@ For every yet *unsupported* module `passContext()` can be used to provide transa
 
 |OneAgent SDK for Node.Js|Dynatrace OneAgent|
 |:-----------------------|:-----------------|
-|1.0.1                   |>=1.137           |
+|1.0.x                   |>=1.137           |
 
 ## Support
 
-The Dynatrace OneAgent SDK for Node.Js is currently in early access. Please report issues via the [GitHub issue tracker](https://github.com/Dynatrace/OneAgent-SDK-for-NodeJs/issues/).
+The Dynatrace OneAgent SDK for Node.Js is currently in beta. Please report issues via the [GitHub issue tracker](https://github.com/Dynatrace/OneAgent-SDK-for-NodeJs/issues/).
 
 ## Release Notes
 
 |Version|Date       |Description    |
-|:------|:----------|:--------------|
+|:------|:----------|:-------------------|
+|1.0.2  |03.2018    |early access to beta|
 |1.0.1  |01.2018    |Initial release|
