@@ -120,22 +120,22 @@ export interface Tracer {
 	 * @param args The arguments to be passed to handler
 	 * @returns The return value of handler
 	 */
-	start<R>(handler: (this: void) => R ): R;
-	start<R, P1>(handler: (this: void, _1: P1) => R, _1: P1): R;
-	start<R, P1, P2>(handler: (this: void, _1: P1, _2: P2) => R, _1: P1, _2: P2): R;
-	start<R, P1, P2, P3>(handler: (this: void, _1: P1, _2: P2, _3: P3) => R, _1: P1, _2: P2, _3: P3): R;
-	start<R, P1, P2, P3, P4>(handler: (this: void, _1: P1, _2: P2, _3: P3, _4: P4) => R, _1: P1, _2: P2, _3: P3, _4: P4): R;
-	start<R, P1, P2, P3, P4, P5>(handler: (this: void, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5) => R, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5): R;
-	start<R, P1, P2, P3, P4, P5, P6>(handler: (this: void, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6) => R,
-											_1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6): R;
-	start<R, P1, P2, P3, P4, P5, P6, P7>(handler: (this: void, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7) => R,
-											_1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7): R;
-	start<R, P1, P2, P3, P4, P5, P6, P7, P8>(handler: (this: void, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8) => R,
-											_1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8): R;
-	start<R, P1, P2, P3, P4, P5, P6, P7, P8, P9>(handler: (this: void, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9) => R,
-											_1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9): R;
 	start<R, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10>(handler: (this: void, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9, _10: P10) => R,
 											_1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9, _10: P10): R;
+	start<R, P1, P2, P3, P4, P5, P6, P7, P8, P9>(handler: (this: void, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9) => R,
+											_1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9): R;
+	start<R, P1, P2, P3, P4, P5, P6, P7, P8>(handler: (this: void, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8) => R,
+											_1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8): R;
+	start<R, P1, P2, P3, P4, P5, P6, P7>(handler: (this: void, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7) => R,
+											_1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7): R;
+	start<R, P1, P2, P3, P4, P5, P6>(handler: (this: void, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6) => R, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6): R;
+	start<R, P1, P2, P3, P4, P5>(handler: (this: void, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5) => R, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5): R;
+	start<R, P1, P2, P3, P4>(handler: (this: void, _1: P1, _2: P2, _3: P3, _4: P4) => R, _1: P1, _2: P2, _3: P3, _4: P4): R;
+	start<R, P1, P2, P3>(handler: (this: void, _1: P1, _2: P2, _3: P3) => R, _1: P1, _2: P2, _3: P3): R;
+	start<R, P1, P2>(handler: (this: void, _1: P1, _2: P2) => R, _1: P1, _2: P2): R;
+	start<R, P1>(handler: (this: void, _1: P1) => R, _1: P1): R;
+	start<R>(handler: (this: void) => R ): R;
+
 
 	/**
 	 * Start the trace and calls the given handler function with specified context (this).
@@ -145,22 +145,21 @@ export interface Tracer {
 	 * @param args The arguments to be passed to handler
 	 * @returns The return value of handler
 	 */
-	startWithContext<R, T>(handler: (this: T) => R, thisObj: T): R;
-	startWithContext<R, T, P1>(handler: (this: T, _1: P1) => R, thisObj: T, _1: P1): R;
-	startWithContext<R, T, P1, P2>(handler: (this: T, _1: P1, _2: P2) => R, thisObj: T, _1: P1, _2: P2): R;
-	startWithContext<R, T, P1, P2, P3>(handler: (this: T, _1: P1, _2: P2, _3: P3) => R, thisObj: T, _1: P1, _2: P2, _3: P3): R;
-	startWithContext<R, T, P1, P2, P3, P4>(handler: (this: T, _1: P1, _2: P2, _3: P3, _4: P4) => R, thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4): R;
-	startWithContext<R, T, P1, P2, P3, P4, P5>(handler: (this: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5) => R, thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5): R;
-	startWithContext<R, T, P1, P2, P3, P4, P5, P6>(handler: (this: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6) => R,
-											thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6): R;
-	startWithContext<R, T, P1, P2, P3, P4, P5, P6, P7>(handler: (this: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7) => R,
-											thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7): R;
-	startWithContext<R, T, P1, P2, P3, P4, P5, P6, P7, P8>(handler: (this: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8) => R,
-											thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8): R;
-	startWithContext<R, T, P1, P2, P3, P4, P5, P6, P7, P8, P9>(handler: (this: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9) => R,
-											thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9): R;
 	startWithContext<R, T, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10>(handler: (this: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9, _10: P10) => R,
 											thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9, _10: P10): R;
+	startWithContext<R, T, P1, P2, P3, P4, P5, P6, P7, P8, P9>(handler: (this: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9) => R,
+											thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9): R;
+	startWithContext<R, T, P1, P2, P3, P4, P5, P6, P7, P8>(handler: (this: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8) => R,
+											thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8): R;
+	startWithContext<R, T, P1, P2, P3, P4, P5, P6, P7>(handler: (this: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7) => R,
+											thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7): R;
+	startWithContext<R, T, P1, P2, P3, P4, P5, P6>(handler: (this: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6) => R, thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6): R;
+	startWithContext<R, T, P1, P2, P3, P4, P5>(handler: (this: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5) => R, thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5): R;
+	startWithContext<R, T, P1, P2, P3, P4>(handler: (this: T, _1: P1, _2: P2, _3: P3, _4: P4) => R, thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4): R;
+	startWithContext<R, T, P1, P2, P3>(handler: (this: T, _1: P1, _2: P2, _3: P3) => R, thisObj: T, _1: P1, _2: P2, _3: P3): R;
+	startWithContext<R, T, P1, P2>(handler: (this: T, _1: P1, _2: P2) => R, thisObj: T, _1: P1, _2: P2): R;
+	startWithContext<R, T, P1>(handler: (this: T, _1: P1) => R, thisObj: T, _1: P1): R;
+	startWithContext<R, T>(handler: (this: T) => R, thisObj: T): R;
 
 	/**
 	 * Mark a trace as failed.
@@ -186,22 +185,21 @@ export interface OutgoingTracer extends Tracer {
 	 * @param args The arguments to be passed to callback.
 	 * @returns the callback return value or undefined if there is no callback
 	 */
-	end<R>(callback: (this: void) => R): R;
-	end<R, P1>(callback: (this: void, _1: P1) => R, _1: P1): R;
-	end<R, P1, P2>(callback: (this: void, _1: P1, _2: P2) => R, _1: P1, _2: P2): R;
-	end<R, P1, P2, P3>(callback: (this: void, _1: P1, _2: P2, _3: P3) => R, _1: P1, _2: P2, _3: P3): R;
-	end<R, P1, P2, P3, P4>(callback: (this: void, _1: P1, _2: P2, _3: P3, _4: P4) => R, _1: P1, _2: P2, _3: P3, _4: P4): R;
-	end<R, P1, P2, P3, P4, P5>(callback: (this: void, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5) => R, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5): R;
-	end<R, P1, P2, P3, P4, P5, P6>(callback: (this: void, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6) => R,
-											_1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6): R;
-	end<R, P1, P2, P3, P4, P5, P6, P7>(callback: (this: void, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7) => R,
-											_1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7): R;
-	end<R, P1, P2, P3, P4, P5, P6, P7, P8>(callback: (this: void, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8) => R,
-											_1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8): R;
-	end<R, P1, P2, P3, P4, P5, P6, P7, P8, P9>(callback: (this: void, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9) => R,
-											_1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9): R;
 	end<R, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10>(callback: (this: void, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9, _10: P10) => R,
 											_1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9, _10: P10): R;
+	end<R, P1, P2, P3, P4, P5, P6, P7, P8, P9>(callback: (this: void, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9) => R,
+											_1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9): R;
+	end<R, P1, P2, P3, P4, P5, P6, P7, P8>(callback: (this: void, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8) => R,
+											_1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8): R;
+	end<R, P1, P2, P3, P4, P5, P6, P7>(callback: (this: void, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7) => R,
+											_1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7): R;
+	end<R, P1, P2, P3, P4, P5, P6>(callback: (this: void, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6) => R, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6): R;
+	end<R, P1, P2, P3, P4, P5>(callback: (this: void, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5) => R, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5): R;
+	end<R, P1, P2, P3, P4>(callback: (this: void, _1: P1, _2: P2, _3: P3, _4: P4) => R, _1: P1, _2: P2, _3: P3, _4: P4): R;
+	end<R, P1, P2, P3>(callback: (this: void, _1: P1, _2: P2, _3: P3) => R, _1: P1, _2: P2, _3: P3): R;
+	end<R, P1, P2>(callback: (this: void, _1: P1, _2: P2) => R, _1: P1, _2: P2): R;
+	end<R, P1>(callback: (this: void, _1: P1) => R, _1: P1): R;
+	end<R>(callback: (this: void) => R): R;
 	end(): void;
 
 
@@ -212,22 +210,21 @@ export interface OutgoingTracer extends Tracer {
 	 * @param args The arguments to be passed to callback
 	 * @returns the callback return value or undefined if there is no callback
 	 */
-	endWithContext<R, T>(callback: (this: T) => R, thisObj: T): R;
-	endWithContext<R, T, P1>(callback: (this: T, _1: P1) => R, thisObj: T, _1: P1): R;
-	endWithContext<R, T, P1, P2>(callback: (this: T, _1: P1, _2: P2) => R, thisObj: T, _1: P1, _2: P2): R;
-	endWithContext<R, T, P1, P2, P3>(callback: (this: T, _1: P1, _2: P2, _3: P3) => R, thisObj: T, _1: P1, _2: P2, _3: P3): R;
-	endWithContext<R, T, P1, P2, P3, P4>(callback: (this: T, _1: P1, _2: P2, _3: P3, _4: P4) => R, thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4): R;
-	endWithContext<R, T, P1, P2, P3, P4, P5>(callback: (this: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5) => R, thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5): R;
-	endWithContext<R, T, P1, P2, P3, P4, P5, P6>(callback: (this: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6) => R,
-											thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6): R;
-	endWithContext<R, T, P1, P2, P3, P4, P5, P6, P7>(callback: (this: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7) => R,
-											thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7): R;
-	endWithContext<R, T, P1, P2, P3, P4, P5, P6, P7, P8>(callback: (this: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8) => R,
-											thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8): R;
-	endWithContext<R, T, P1, P2, P3, P4, P5, P6, P7, P8, P9>(callback: (this: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9) => R,
-											thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9): R;
 	endWithContext<R, T, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10>(callback: (this: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9, _10: P10) => R,
 											thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9, _10: P10): R;
+	endWithContext<R, T, P1, P2, P3, P4, P5, P6, P7, P8, P9>(callback: (this: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9) => R,
+											thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8, _9: P9): R;
+	endWithContext<R, T, P1, P2, P3, P4, P5, P6, P7, P8>(callback: (this: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8) => R,
+											thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7, _8: P8): R;
+	endWithContext<R, T, P1, P2, P3, P4, P5, P6, P7>(callback: (this: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7) => R,
+											thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6, _7: P7): R;
+	endWithContext<R, T, P1, P2, P3, P4, P5, P6>(callback: (this: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6) => R, thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5, _6: P6): R;
+	endWithContext<R, T, P1, P2, P3, P4, P5>(callback: (this: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5) => R, thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4, _5: P5): R;
+	endWithContext<R, T, P1, P2, P3, P4>(callback: (this: T, _1: P1, _2: P2, _3: P3, _4: P4) => R, thisObj: T, _1: P1, _2: P2, _3: P3, _4: P4): R;
+	endWithContext<R, T, P1, P2, P3>(callback: (this: T, _1: P1, _2: P2, _3: P3) => R, thisObj: T, _1: P1, _2: P2, _3: P3): R;
+	endWithContext<R, T, P1, P2>(callback: (this: T, _1: P1, _2: P2) => R, thisObj: T, _1: P1, _2: P2): R;
+	endWithContext<R, T, P1>(callback: (this: T, _1: P1) => R, thisObj: T, _1: P1): R;
+	endWithContext<R, T>(callback: (this: T) => R, thisObj: T): R;
 }
 
 /**
@@ -280,11 +277,23 @@ export interface SQLDatabaseRequestStartData {
 	statement: string;
 }
 
+export interface SQLDatabaseRequestResultData {
+	/// Number of rows returned by this traced database request. Only positive values are allowed
+	rowsReturned?: number;
+
+	/// Count of round-trips that took place. Only positive values are allowed
+	roundTripCount?: number;
+}
+
 /**
  * Tracer for a database request.
  * Created by {@link traceSQLDatabaseRequest}
  */
 export interface DatabaseRequestTracer extends OutgoingTracer {
+	/** Adds optional information about retrieved rows of the traced database request.
+	 *  Use is optional. Must be called before end() of this tracer is being called.
+	 */
+	setResultData(resultData: SQLDatabaseRequestResultData): this;
 }
 
 // ============================================================================
@@ -403,7 +412,7 @@ export interface OneAgentSDK {
  */
 export function createInstance(): OneAgentSDK {
 	if (typeof __DT_GETAGENTAPI__ === "function") {
-		return  __DT_GETAGENTAPI__(4) || getDummySdk();
+		return  __DT_GETAGENTAPI__(5) || getDummySdk();
 	}
 
 	return getDummySdk();

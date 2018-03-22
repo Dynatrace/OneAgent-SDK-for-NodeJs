@@ -16,9 +16,10 @@
 
 "use strict";
 
+// tslint:disable:no-console
+
 // ----------------------------------------------------------------------------
 const Sdk = require("@dynatrace/oneagent-sdk");
-
 const Api = Sdk.createInstance();
 
 // ----------------------------------------------------------------------------
@@ -84,6 +85,12 @@ function tracedSqlDatabaseRequest(sql, clientCb) {
     if (err) {
       // set the error on the tracer
       tracer.error(err);
+    } else {
+      // optionally set result data
+      tracer.setResultData({
+        rowsReturned: 15,
+        roundTripCount: 32
+      });
     }
     // end the tracer and call client callback forwarding results
     tracer.end(clientCb, err, results, fields);
@@ -98,8 +105,8 @@ const server = http.createServer((req, res) => {
     } else {
       console.log("Result from DB: " + result);
     }
-    // end request 
-    if (--cnt == 0) {
+    // end request
+    if (--cnt === 0) {
       res.end();
     }
   }
@@ -108,7 +115,6 @@ const server = http.createServer((req, res) => {
   tracedSqlDatabaseRequest("SELECT * FROM Persons WHERE Name='Max' AND Age>45", onDbDone);
   tracedSqlDatabaseRequest("SELECT * FROM Persons WHER Name='Max' AND Age>45", onDbDone);
 }).on("listening", () => http.get("http://localhost:" + server.address().port)).listen();
-
 
 // keep application running a while to allow OneAgent to report all data
 setTimeout(() => process.exit(0), 120000);

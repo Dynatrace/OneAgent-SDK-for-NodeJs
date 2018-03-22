@@ -54,6 +54,12 @@ The second argument holds data describing the concrete operation and holds follo
 
 The result of `traceSQLDatabaseRequest()` is a tracer object to be used for further operations related to this trace (see [Common characteristics of tracers](#common-characteristics-of-tracers) for details).
 
+Besides the common APIs for outgoing tracers this tracer offers the additional method `setResultData()` which may be used to set details about the result of the database request.
+It receives an object with following properties:
+
+- `rowsReturned` Optional - Number of rows returned by this traced database request. Only positive values are allowed
+- `roundTripCount` Optional - Count of round-trips that took place. Only positive values are allowed
+
 Please note that SQL database traces are only created if they occur within some other SDK trace (e.g. incoming remote call) or an OneAgent built-in trace (e.g. incoming web request).
 
 **Example**
@@ -79,6 +85,12 @@ function tracedSqlDatabaseRequest(sql, clientCb) {
     if (err) {
       // set the error on the tracer
       tracer.error(err);
+    } else {
+      // optionally set result data
+      tracer.setResultData({
+        rowsReturned: 15,
+        roundTripCount: 32
+      });
     }
     // end the tracer and call client callback forwarding results
     tracer.end(clientCb, err, results, fields);

@@ -104,7 +104,9 @@ describe("Dummy", () => {
 	it("SqlDatabaseRequest", () => {
 		const tracer = Api.traceSQLDatabaseRequest({} as Sdk.DatabaseInfo, {} as Sdk.SQLDatabaseRequestStartData);
 		assertStart(tracer);
-		const rc = tracer.error(new Error("test"));
+		let rc = tracer.error(new Error("test"));
+		Assert.strictEqual(rc, tracer);
+		rc = tracer.setResultData({});
 		Assert.strictEqual(rc, tracer);
 		assertOutgoingEnd(tracer);
 	});

@@ -61,6 +61,12 @@ class DummyOutgoingTaggableTracer extends DummyOutgoingTracer implements Sdk.Tra
 	}
 }
 
+class DummyDatabaseRequestTracer extends DummyOutgoingTracer implements Sdk.DatabaseRequestTracer {
+	public setResultData(): this {
+		return this;
+	}
+}
+
 // tslint:disable-next-line:ban-types
 function dummyPassContext<T extends Function>(func: T): T {
 	return func;
@@ -68,7 +74,7 @@ function dummyPassContext<T extends Function>(func: T): T {
 
 // ----------------------------------------------------------------------------
 function dummyTraceSQLDatabaseRequest(): Sdk.DatabaseRequestTracer {
-	return new DummyOutgoingTracer();
+	return new DummyDatabaseRequestTracer();
 }
 
 function dummyTraceIncomingRemoteCall(): Sdk.IncomingRemoteCallTracer {

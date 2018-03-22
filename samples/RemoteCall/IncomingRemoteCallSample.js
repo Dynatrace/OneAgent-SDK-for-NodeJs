@@ -16,9 +16,10 @@
 
 "use strict";
 
+// tslint:disable:no-console
+
 // ----------------------------------------------------------------------------
 const Sdk = require("@dynatrace/oneagent-sdk");
-
 const Api = Sdk.createInstance();
 
 // ----------------------------------------------------------------------------

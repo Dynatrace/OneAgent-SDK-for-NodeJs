@@ -41,7 +41,7 @@ describe("Sdk with agent", () => {
 		const sdkApi = Sdk.createInstance();
 		Assert.strictEqual(typeof sdkApi, "object");
 		Sinon.assert.callCount(getSdkStub, 1);
-		Sinon.assert.alwaysCalledWith(getSdkStub, 4);
+		Sinon.assert.alwaysCalledWith(getSdkStub, 5);
 		Assert.strictEqual(sdkApi.getCurrentState(), Sdk.SDKState.PERMANENTLY_INACTIVE);
 	});
 
@@ -57,7 +57,7 @@ describe("Sdk with agent", () => {
 		const sdkApi = Sdk.createInstance();
 		Assert.strictEqual(sdkApi, agentSdk);
 		Sinon.assert.callCount(getSdkStub, 1);
-		Sinon.assert.alwaysCalledWith(getSdkStub, 4);
+		Sinon.assert.alwaysCalledWith(getSdkStub, 5);
 		Assert.strictEqual(sdkApi.getCurrentState(), Sdk.SDKState.ACTIVE);
 	});
 

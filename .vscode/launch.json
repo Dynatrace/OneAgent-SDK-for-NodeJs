@@ -1,0 +1,34 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Database Sample",
+			"program": "${workspaceRoot}/samples/Database/DatabaseRequestSample.js"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "RemoteCall Outgoing Sample",
+			"program": "${workspaceRoot}/samples/RemoteCall/OutgoingRemoteCallSample.js"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Mocha Tests",
+			"program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+			"args": [ "--no-timeouts", "--recursive", "--no-exit", "--require", "source-map-support/register", "${workspaceRoot}/build/transpiled/test" ],
+			"windows": {
+				"preLaunchTask": "tsc: build - test\\tsconfig.json"
+			},
+			"linux": {
+				"preLaunchTask": "tsc: build - test/tsconfig.json"
+			},
+			"internalConsoleOptions": "openOnSessionStart",
+			"outFiles": [
+				"${workspaceRoot}/build/transpiled/**/*.js"
+			]
+		}
+	]
+}
