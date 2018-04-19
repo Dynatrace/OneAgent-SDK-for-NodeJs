@@ -1,4 +1,4 @@
-**Disclaimer: This SDK is currently in beta and still work in progress and requires OneAgent version 1.137 or higher.**
+**Disclaimer: This SDK is currently in beta and still work in progress.**
 
 # Node.js SDK for Dynatrace OneAgent
 
@@ -389,6 +389,7 @@ For every yet *unsupported* module `passContext()` can be used to provide transa
 
 |OneAgent SDK for Node.Js|Dynatrace OneAgent|
 |:-----------------------|:-----------------|
+|1.1.x                   |>=1.143           |
 |1.0.x                   |>=1.137           |
 
 ## Support
@@ -397,7 +398,8 @@ The Dynatrace OneAgent SDK for Node.Js is currently in beta. Please report issue
 
 ## Release Notes
 
-|Version|Date       |Description         |
-|:------|:----------|:-------------------|
-|1.0.3  |03.2018    |early access to beta|
-|1.0.1  |01.2018    |Initial release     |
+|Version|Description                                |
+|:------|:------------------------------------------|
+|1.1.0  |add setResultData() for SQL Database tracer|
+|1.0.3  |early access to beta                       |
+|1.0.1  |Initial release                            |
