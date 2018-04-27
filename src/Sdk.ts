@@ -49,7 +49,7 @@ export const enum SDKState {
 }
 
 /**
- * Specifies the type used as communication channel.
+ * Specifies the protocol used as communication channel.
  */
 export const enum ChannelType {
 	/// To be used for other protocols
@@ -77,17 +77,17 @@ export const enum ChannelType {
  * In case no detailed information is available set the channelType field.
  */
 export interface ConnectionInfo {
-	/// The hostname in case a TCP/IP connection is used
+	/// The hostname/IP of the server-side in case a TCP/IP connection is used
 	host?: string;
 	// The port in case a TCP/IP connection is used
 	port?: number;
 
 
-	/// The path of the UNIX domain socket used
+	/// The path of the UNIX domain socket file
 	socketPath?: string;
 
 
-	/// The name of the pipe used
+	/// The name of the pipe
 	pipeName?: string;
 
 
@@ -265,7 +265,7 @@ export interface DatabaseInfo extends ConnectionInfo {
 	/// The name of the database
 	name: string;
 
-	/// The database vendor name (e.a. Oracle, MySQL, ...), can be an user defined name or one of the contants in DatabaseVendor
+	/// The database vendor name (e.a. Oracle, MySQL, ...) can be an user defined name. If possible use a constant defined in DatabaseVendor.
 	vendor: string;
 }
 
@@ -290,8 +290,9 @@ export interface SQLDatabaseRequestResultData {
  * Created by {@link traceSQLDatabaseRequest}
  */
 export interface DatabaseRequestTracer extends OutgoingTracer {
-	/** Adds optional information about retrieved rows of the traced database request.
-	 *  Use is optional. Must be called before end() of this tracer is being called.
+	/**
+	 * Adds optional information about retrieved rows of the traced database request.
+	 * Use is optional. Must be called before end() of this tracer is being called.
 	 */
 	setResultData(resultData: SQLDatabaseRequestResultData): this;
 }
@@ -310,10 +311,10 @@ export interface IncomingRemoteCallStartData extends IncomingTaggable {
 	/// Name of the remote service
 	serviceName: string;
 
-	// Endpoint on the local machine
+	/// Logical deployment endpoint on the server side
 	serviceEndpoint: string;
 
-	/// The name of the protocol
+	/// The name of the protocol, only for display purposes
 	protocolName?: string;
 }
 
@@ -329,7 +330,7 @@ export interface IncomingRemoteCallTracer extends IncomingTracer {
 // Types for OutgoingRemoteCall
 
 /**
- *  Specifies the start data for an outgoing remote call.
+ * Specifies the start data for an outgoing remote call.
  */
 export interface OutgoingRemoteCallStartData extends ConnectionInfo {
 	/// Name of the called remote method
@@ -338,10 +339,14 @@ export interface OutgoingRemoteCallStartData extends ConnectionInfo {
 	/// Name of the remote service
 	serviceName: string;
 
-	/// Endpoint of the remote service
+	/**
+	 * Logical deployment endpoint on the server side.
+	 * In case of a clustered/load balanced service, the serviceEndpoint represents the common logical endpoint (e.g. registry://staging-environment/myservices/serviceA)
+	 * where as the ConnectionInfo describes the actual communication endpoint. As such a single serviceEndpoint can have many connections.
+	 */
 	serviceEndpoint: string;
 
-	/// The name of the protocol
+	/// The name of the protocol, only for display purposes
 	protocolName?: string;
 }
 
@@ -366,7 +371,7 @@ export interface OneAgentSDK {
 	 */
 	passContext<T extends Function>(func: T): T;	// tslint:disable-line:ban-types
 
-	// Apis to create Tracers
+	// **************** Apis to create Tracers ********************
 
 	/**
 	 * Traces an (outgoing) SQL database request.
@@ -390,6 +395,19 @@ export interface OneAgentSDK {
 	 */
 	traceOutgoingRemoteCall(startData: OutgoingRemoteCallStartData): OutgoingRemoteCallTracer;
 
+	// ***** Custom request attributes *****
+	/**
+	 * Adds a custom request attribute to currently traced service call. Might be called multiple times, to add more than one attribute.
+	 * Check via {@link #setLoggingCallback(LoggingCallback)} if an error happened. If two attributes with same key are set, both
+	 * attribute-values are captured.
+	 *
+	 * @param key Key of the attribute.
+	 * @param value Value of the attribute.
+	 */
+	addCustomRequestAttribute(key: string, value: string | number): void;
+
+	// ***** various *****
+
 	/**
 	 * Returns the current SDKState. See {@link SDKState} for details.
 	 * @return current state.
@@ -412,7 +430,7 @@ export interface OneAgentSDK {
  */
 export function createInstance(): OneAgentSDK {
 	if (typeof __DT_GETAGENTAPI__ === "function") {
-		return  __DT_GETAGENTAPI__(5) || getDummySdk();
+		return  __DT_GETAGENTAPI__(6) || getDummySdk();
 	}
 
 	return getDummySdk();

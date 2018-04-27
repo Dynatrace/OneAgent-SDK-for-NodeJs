@@ -98,7 +98,7 @@ function tracedSqlDatabaseRequest(sql, clientCb) {
 }
 
 // ----------------------------------------------------------------------------
-const server = http.createServer((req, res) => {
+const server = http.createServer(function onRequest(req, res) {
   function onDbDone(err, result) {
     if (err) {
       console.log("Request failed: " + err);
@@ -114,7 +114,7 @@ const server = http.createServer((req, res) => {
   let cnt = 2;
   tracedSqlDatabaseRequest("SELECT * FROM Persons WHERE Name='Max' AND Age>45", onDbDone);
   tracedSqlDatabaseRequest("SELECT * FROM Persons WHER Name='Max' AND Age>45", onDbDone);
-}).on("listening", () => http.get("http://localhost:" + server.address().port)).listen();
+}).listen(8001).on("listening", () => setInterval(() => http.get("http://localhost:" + server.address().port), 500));
 
 // keep application running a while to allow OneAgent to report all data
 setTimeout(() => process.exit(0), 120000);

@@ -8,6 +8,8 @@ This module provides JavaScript bindings for Node.js applications monitored with
 
 The current version provides APIs to trace remote calls and SQL database requests. The main purpose is to allow the user to add service level insight for modules currently not supported out-of-the-box by OneAgent.
 
+Besides APIs to trace transactions it offers an API to set custom request attributes.
+
 Additionally, it provides a method `passContext()` which may be used to pass transactional context through chains of callbacks for *modules that are not yet supported out-of-the-box* by OneAgent.
 
 Dynatrace supports many technologies out-of-the-box and this module needs to be used only in rare corner cases - so only use this module if transactions seem to be incomplete.
@@ -37,16 +39,16 @@ A SQL database request is traced by calling `traceSQLDatabaseRequest()` which re
 The database info is an object which usually doesn't change during runtime. It holds following properties:
 
 - `name` Mandatory - a string defining the name of the database
-- `vendor` Mandatory - a string holding the database vendor name (e.g. Oracle, MySQL, ...), can be an user defined name or one of the constants in [DatabaseVendor](#constants-for-database-vendors)
+- `vendor` Mandatory - a string holding the database vendor name (e.g. Oracle, MySQL, ...), can be an user defined name. If possible use a constant defined in [DatabaseVendor](#constants-for-database-vendors)
 
 Additionally, it holds following properties describing the connection to the database. Depending on the actual connection used the corresponding property/properties shall be set.
 If the specific information like host/socketPath/... is not available the property channelType shall be set.
 
-- `host` A string specifying the hostname in case of a TCP/IP connection is used (note that OneAgent may try to resolve the hostname)
+- `host` A string specifying the hostname/IP of the server side in case of a TCP/IP connection is used (note that OneAgent may try to resolve the hostname)
 - `port` The TCP/IP port (optional)
-- `socketPath` A string specifying the UNIX domain socket path used
-- `pipeName` A string specifying the name of the pipe used
-- `channelType` Specifies the channel type (e.g. TCP/IP, IN_PROCESS,... ) used. Valid values are available via [ChannelType](#channel-type-constants)
+- `socketPath` A string specifying the UNIX domain socket file
+- `pipeName` A string specifying the name of the pipe
+- `channelType` Specifies the protocol used as communication channel (e.g. TCP/IP, IN_PROCESS,... ). Valid values are available via [ChannelType](#channel-type-constants).
 
 The second argument holds data describing the concrete operation and holds following properties:
 
@@ -104,17 +106,17 @@ An outgoing remote call is traced by calling `traceOutgoingRemoteCall()` passing
 
 - `serviceMethod` Mandatory - a string holding the name of the called remote method
 - `serviceName` Mandatory - a string holding the name of the remote service
-- `serviceEndpoint` Mandatory - a string describing the logical endpoint of the remote service
-- `protocolName` Optional - a string describing the protocol used (e.g. Protobuf, GIOP,...)
+- `serviceEndpoint` Mandatory - a string describing the logical endpoint of the remote service. In case of a clustered/load balanced service, the serviceEndpoint represents the common logical endpoint (e.g. registry://staging-environment/myservices/serviceA) whereas the ConnectionInfo describes the actual communication endpoint. As such a single serviceEndpoint can have many connections.
+- `protocolName` Optional - a string describing the protocol used (e.g. Protobuf, GIOP,...), only for display purposes
 
 Additionally it holds following properties describing the connection to the remote service. Depending on the connection type the corresponding property/properties shall be set.
 If the specific information like host/socketPath/... is not available the property channelType shall be set.
 
-- `host` A string specifying the hostname in case of a TCP/IP connection is used (note that OneAgent may try to resolved the hostname)
+- `host` A string specifying the hostname/IP of the server side in case of a TCP/IP connection is used (note that OneAgent may try to resolve the hostname)
 - `port` The TCP/IP port (optional)
-- `socketPath` A string specifying the UNIX domain socket path used
-- `pipeName` A string specifying the name of the Pipe used
-- `channelType` Specifies the channel type (e.g. TCP/IP, IN_PROCESS,... ) used. Valid values are available via [ChannelType](#channel-type-constants))
+- `socketPath` A string specifying the UNIX domain socket file
+- `pipeName` A string specifying the name of the Pipe
+- `channelType` Specifies the protocol used as communication channel (e.g. TCP/IP, IN_PROCESS,... ). Valid values are available via [ChannelType](#channel-type-constants))
 
 The result of `traceOutgoingRemoteCall()` is a tracer object to be used for further operations related to this trace (see [Common characteristics of tracers](#common-characteristics-of-tracers) for details).
 As an outgoing remote call is _taggable_ a Dynatrace tag shall be created from tracer after it has been started and embedded to the remote call message content.
@@ -154,8 +156,8 @@ An incoming remote call is traced by calling `traceIncomingRemoteCall()` passing
 
 - `serviceMethod` Mandatory - a string holding the name of the called remote method
 - `serviceName` Mandatory - a string holding the name of the remote service
-- `serviceEndpoint` Mandatory - a string describing the logical endpoint of the remote service
-- `protocolName` Optional - a string describing the protocol used (e.g. Protobuf, GIOP,...)
+- `serviceEndpoint` Mandatory - a string describing the logical deployment endpoint of the remote service on server side
+- `protocolName` Optional - a string describing the protocol used (e.g. Protobuf, GIOP,...), only for display purposes
 - `dynatraceTag` - a `string` or `Buffer` holding the received Dynatrace tag received
 
 The result of this call is a tracer object to be used for further operations related to this trace (see [Common characteristics of tracers](#common-characteristics-of-tracers)).
@@ -275,6 +277,22 @@ The values of constant `DatabaseVendor` may be used as input for `traceSQLDataba
 - `H2`
 - `COLDFUSION_IMQ`
 - `REDSHIFT`
+- `COUCHBASE`
+
+### Set custom request attributes
+
+The API `addCustomRequestAttribute()` adds a custom request attribute to the currently traced service call. There is no reference to a tracer needed as OneAgent SDK will select the current open trace. This may be a trace created by SDK or
+a trace created by built in sensors of OneAgent. The API may be called several times to add more attributes. If the same attribute key is set several times all values will be recorded.
+
+`addCustomRequestAttribute()` takes two arguments:
+
+- `key` Mandatory - a string specifying the name of the attribute
+- `value` Mandatory - a string or number specifying the attribute value
+
+```js
+Api.addCustomRequestAttribute("fooAttribute", "bar");
+Api.addCustomRequestAttribute("barAttribute", 15.34);
+```
 
 ### Administrative Apis
 
@@ -389,6 +407,7 @@ For every yet *unsupported* module `passContext()` can be used to provide transa
 
 |OneAgent SDK for Node.Js|Dynatrace OneAgent|
 |:-----------------------|:-----------------|
+|1.2.x                   |>=1.145           |
 |1.1.x                   |>=1.143           |
 |1.0.x                   |>=1.137           |
 
@@ -398,8 +417,9 @@ The Dynatrace OneAgent SDK for Node.Js is currently in beta. Please report issue
 
 ## Release Notes
 
-|Version|Description                                |
-|:------|:------------------------------------------|
-|1.1.0  |add setResultData() for SQL Database tracer|
-|1.0.3  |early access to beta                       |
-|1.0.1  |Initial release                            |
+|Version|Description                                              |
+|:------|:--------------------------------------------------------|
+|1.2.0  |06.2018    |Add support to add custom request attributes |
+|1.1.0  |add setResultData() for SQL Database tracer              |
+|1.0.3  |early access to beta                                     |
+|1.0.1  |Initial release                                          |

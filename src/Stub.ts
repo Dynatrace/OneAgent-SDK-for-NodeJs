@@ -67,12 +67,12 @@ class DummyDatabaseRequestTracer extends DummyOutgoingTracer implements Sdk.Data
 	}
 }
 
+// ----------------------------------------------------------------------------
 // tslint:disable-next-line:ban-types
 function dummyPassContext<T extends Function>(func: T): T {
 	return func;
 }
 
-// ----------------------------------------------------------------------------
 function dummyTraceSQLDatabaseRequest(): Sdk.DatabaseRequestTracer {
 	return new DummyDatabaseRequestTracer();
 }
@@ -83,6 +83,10 @@ function dummyTraceIncomingRemoteCall(): Sdk.IncomingRemoteCallTracer {
 
 function dummyTraceOutgoingRemoteCall(): Sdk.OutgoingRemoteCallTracer {
 	return new DummyOutgoingTaggableTracer();
+}
+
+function dummyAddCustomRequestAttribute(): void {
+	// intentionally empty
 }
 
 function dummyGetCurrentState(): Sdk.SDKState {
@@ -103,6 +107,8 @@ export function getDummySdk(): Sdk.OneAgentSDK {
 		traceIncomingRemoteCall: dummyTraceIncomingRemoteCall,
 
 		traceOutgoingRemoteCall: dummyTraceOutgoingRemoteCall,
+
+		addCustomRequestAttribute: dummyAddCustomRequestAttribute,
 
 		getCurrentState: dummyGetCurrentState,
 

@@ -29,3 +29,11 @@ In OutgoingRemoteCallSample.js a child process is spawened (executing IncomingRe
 
 Execute the sample via `npm run remotecall` or `node RemoteCall/OutgoingRemoteCallSample` in folder samples.
 Check your Dynatrace environment for newly created services.
+
+## CustomRequestAttributes sample application
+
+This sample shows how to set custom request attributes.
+The OneAgent will create a trace for the incoming web request and client code can add attributes to this trace as long as it is open.
+
+Execute the sample via `npm run customrequestattribute` or `node CustomRequestAttributes/CustomRequestAttributesSample.js` in folder samples.
+Check your Dynatrace environment for newly created services.

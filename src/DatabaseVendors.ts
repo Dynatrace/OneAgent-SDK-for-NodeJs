@@ -52,3 +52,4 @@ export const CASSANDRA = "Cassandra";
 export const H2 = "H2";
 export const COLDFUSION_IMQ = "ColdFusion IMQ";
 export const REDSHIFT = "Amazon Redshift";
+export const COUCHBASE = "Couchbase";

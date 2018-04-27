@@ -90,7 +90,7 @@ describe("Dummy", () => {
 	it("Api count", () => {
 		// verify the number of exported APIs. Mainly to get a hint to add tests...
 		const apis = Object.getOwnPropertyNames(Api);
-		Assert.strictEqual(apis.length, 6);
+		Assert.strictEqual(apis.length, 7);
 	});
 
 	// ========================================================================
@@ -128,6 +128,11 @@ describe("Dummy", () => {
 		const rc = tracer.error(new Error("test"));
 		Assert.strictEqual(rc, tracer);
 		tracer.end();
+	});
+
+	// ========================================================================
+	it("addCustomRequestAttribute", () => {
+		Api.addCustomRequestAttribute("key", "value");
 	});
 
 	// ========================================================================

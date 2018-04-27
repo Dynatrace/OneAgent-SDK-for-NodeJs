@@ -1,16 +1,17 @@
 {
   "name": "sdksamples",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Samples showing API for OneAgent SDK",
   "engines": {
     "node": ">= 8.0.0"
   },
   "scripts": {
     "remotecall": "node RemoteCall/OutgoingRemoteCallSample.js",
-    "database": "node Database/DatabaseRequestSample.js"
+    "database": "node Database/DatabaseRequestSample.js",
+    "customrequestattribute": "node CustomRequestAttributes/CustomRequestAttributesSample.js"
   },
   "dependencies": {
-    "@dynatrace/oneagent-sdk": "1.1.0"
+    "@dynatrace/oneagent-sdk": "1.2.0"
   },
   "repository": {
     "type": "git",
