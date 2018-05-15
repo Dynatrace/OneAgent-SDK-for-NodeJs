@@ -1,70 +1,262 @@
 **Disclaimer: This SDK is currently in beta and still work in progress.**
 
-# Node.js SDK for Dynatrace OneAgent
+# Dynatrace OneAgent SDK for Node.js
 
-This module provides JavaScript bindings for Node.js applications monitored with [Dynatrace](https://www.dynatrace.com/technologies/nodejs-monitoring/).
+This SDK allows Dynatrace customers to instrument Node.js applications. This is useful to add service level insight for modules currently not directly supported by [Dynatrace OneAgent](https://www.dynatrace.com/technologies/nodejs-monitoring/) out-of-the-box.
 
-## Overview
+This is the official Node.js implementation of the [Dynatrace OneAgent SDK](https://github.com/Dynatrace/OneAgent-SDK).
 
-The current version provides APIs to trace remote calls and SQL database requests. The main purpose is to allow the user to add service level insight for modules currently not supported out-of-the-box by OneAgent.
+## Table of Contents
 
-Besides APIs to trace transactions it offers an API to set custom request attributes.
+* [Package contents](#package-contents)
+* [Requirements](#requirements)
+* [Integration](#integration)
+  * [Installation](#installation)
+  * [Troubleshooting](#troubleshooting)
+* [API Concepts](#api-concepts)
+  * [OneAgentSDK object](#oneagentsdk-object)
+  * [Tracers](#tracers)
+* [Features](#features)
+  * [Trace incoming and outgoing remote calls](#trace-incoming-and-outgoing-remote-calls)
+  * [Trace SQL database requests](#trace-sql-database-requests)
+  * [Set custom request attributes](#set-custom-request-attributes)
+* [Administrative Apis](#administrative-apis)
+  * [Current SDK state](#current-sdk-state)
+  * [Set callbacks for logging](#set-callbacks-for-logging)
+* [Constants](#constants)
+  * [Channel Type](#channel-type)
+  * [Database vendors](#database-vendors)
+* [Pass Context](#pass-context)
+* [Further reading](#further-readings)
+* [Help & Support](#help-support)
+* [Release notes](#release-notes)
 
-Additionally, it provides a method `passContext()` which may be used to pass transactional context through chains of callbacks for *modules that are not yet supported out-of-the-box* by OneAgent.
+## Package contents
 
-Dynatrace supports many technologies out-of-the-box and this module needs to be used only in rare corner cases - so only use this module if transactions seem to be incomplete.
+* `samples`: sample applications, which demonstrates the usage of the SDK. See [readme](samples/README.md) inside the samples directory for more details
+* `src`: source code of the SDK
+* `test`: unit tests
+* `LICENSE`: license under which the whole SDK and sample applications are published
 
-A high level documentation/description of OneAgent SDK concepts is available at [OneAgent-SDK](https://github.com/Dynatrace/OneAgent-SDK/).
+## Requirements
 
-## Installation
+* When loading the OneAgent via [OneAgent NPM module](https://www.npmjs.com/package/@dynatrace/oneagent) or a similar tool, make sure to require the SDK after the OneAgent
+* Dynatrace OneAgent (required versions see below)
 
-`$ npm install --save @dynatrace/oneagent-sdk`
+|OneAgent SDK for Node.js|Required OneAgent version|
+|:-----------------------|:------------------------|
+|1.2.x                   |>=1.145                  |
+|1.1.x                   |>=1.143                  |
+|1.0.x                   |>=1.137                  |
 
-## Usage
+## Integration
 
-### Get an Api object
+Using this module should not cause any errors if no OneAgent is present (e.g. in testing).
+
+Make sure that this module is required after Dynatrace OneAgent.
+
+### Installation
+
+`npm install --save @dynatrace/oneagent-sdk`
+
+### Troubleshooting
+
+If the SDK can't connect to the OneAgent ([Current SDK state](#current-sdk-state) is not `ACTIVE`) verify that a matching version of OneAgent is used *and required before* the SDK module.
+
+Verify that OneAgent is working as intended (see [Dynatrace OneAgent](https://www.dynatrace.com/technologies/nodejs-monitoring/)).
+
+You should ensure that you have set [LoggingCallbacks](#set-callbacks-for-logging).
+
+OneAgent transparently wrap *supported* libraries to add context information. For every yet *unsupported* module [Pass Context](#pass-context) can be used to provide transactional context to callbacks.
+
+## API Concepts
+
+Common concepts of the Dynatrace OneAgent SDK are explained the [Dynatrace OneAgent SDK repository](https://github.com/Dynatrace/OneAgent-SDK).
+
+### OneAgentSDK object
 
 The first step is to acquire an OneAgent SDK API object by calling `createInstance()`. The resulting object holds methods to create tracers, administrative methods (e.g. check SDK state, install logging callbacks) and `passContext()`. Every call to `createInstance()` will return a new API object allowing the user to install separate logging callbacks for separate use cases.
 
 ```js
 const Sdk = require('@dynatrace/oneagent-sdk');
 const Api = Sdk.createInstance();
-
 ```
 
-### Trace a SQL database request
+### Tracers
+
+The life-cycle of a tracer is as follows:
+
+1. Create a trace using the `traceXXX` method matching to your use case. For incoming taggable traces pass the received Dynatrace tag (if present) to the `traceXXX` method.
+1. Start the trace which in turn invokes and times the given handler function.
+1. For outgoing taggable traces fetch a Dynatrace tag and include it to the message sent out.
+1. Optional mark the traced operation as failed via a call to `error()`
+1. End the trace once the operation is done. For outgoing traces you may pass a callback to be included in this trace.
+
+Each tracer offers following methods:
+
+* `start(handler, ...args)` Start a trace and calls the given handler function with the provides arguments. Returns the return value of handler.
+* `startWithContext(handler, thisObj, ...args)` Like `start()` but allows to specify the `this` context for the call to handler.
+* `error(err)` Mark trace as failed and attach an error object. Shall be call at max once per trace. Does not end the trace! Returns the tracer itself.
+* `end()` End the trace.
+
+Tracers for outgoing requests additionally offer enhanced methods to end a trace which allow to include the follow-up callback to the PurePath of this trace.
+
+* `end(callback, ...args)` End the trace like `end()` but additionally calls the passed callback with given arguments. The return value from callback is forwarded to caller of `end`.
+* `endWithContext(callback, thisObj, ...args)` like `end()` above but with the possibility to specify the `this` context for the callback.
+
+Tracers for outgoing taggable requests additionally offer following methods to get a _dynatrace tag_ to be sent to remote service after the trace was started:
+
+* `getDynatraceStringTag()` returns a Dynatrace tag encoded as `string`
+* `getDynatraceByteTag()` returns a Dynatrace tag binary encoded as `Buffer`
+
+This Dynatrace tag needs to be embedded into the message sent to remote service. Depending on the concrete protocol used the `string` or binary representation may fit better and it's up to the user to decide which variant to use.
+On incoming service this tag needs to be extracted by the user and passed to the corresponding `traceXXX` method using the `dynatraceTag` property of the arguments to allow linking of outgoing and the corresponding incoming trace.
+
+The tracer objects returned by above methods are always valid even if there is no OneAgent present or no trace is created for whatever reason. In this case the methods are still present to avoid the need of extra checking in client code.
+
+Please note that OneAgent uses the name of the given functions in `start()` and `end()` to name PurePath nodes. Therefore we recommend to choose named functions over anonymous functions to give you higher quality traces.
+
+## Features
+
+The feature sets differ slightly with each language implementation. More functionality will be added over time, see [Planned features for OneAgent SDK](https://answers.dynatrace.com/spaces/483/dynatrace-product-ideas/idea/198106/planned-features-for-oneagent-sdk.html) for details on upcoming features.
+
+A more detailed specification of the features can be found in [Dynatrace OneAgent SDK](https://github.com/Dynatrace/OneAgent-SDK).
+
+|Feature                                  |Required OneAgent SDK for Node.js version|
+|:------                                  |:----------------------------------------|
+|Trace incoming and outgoing remote calls |>=1.0.1                                  |
+|Trace SQL database requests              |>=1.0.1                                  |
+|Set result data on SQL database requests |>=1.1.0                                  |
+|Set custom request attributes            |>=1.2.0                                  |
+
+### Trace incoming and outgoing remote calls
+
+#### Trace outgoing remote calls
+
+An outgoing remote call is traced by calling `traceOutgoingRemoteCall()` passing an object with following properties:
+
+* `serviceMethod` Mandatory - a string holding the name of the called remote method
+* `serviceName` Mandatory - a string holding the name of the remote service
+* `serviceEndpoint` Mandatory - a string describing the logical endpoint of the remote service. In case of a clustered/load balanced service, the serviceEndpoint represents the common logical endpoint (e.g. registry://staging-environment/myservices/serviceA) whereas the ConnectionInfo describes the actual communication endpoint. As such a single serviceEndpoint can have many connections.
+* `protocolName` Optional - a string describing the protocol used (e.g. Protobuf, GIOP,...), only for display purposes
+
+Additionally it holds following properties describing the connection to the remote service. Depending on the connection type the corresponding property/properties shall be set.
+If the specific information like host/socketPath/... is not available, the property channelType shall be set.
+
+* `host` A string specifying the hostname/IP of the server side in case of a TCP/IP connection is used (note that OneAgent may try to resolve the hostname)
+* `port` The TCP/IP port (optional)
+* `socketPath` A string specifying the UNIX domain socket file
+* `pipeName` A string specifying the name of the Pipe
+* `channelType` Specifies the protocol used as communication channel (e.g. TCP/IP, IN_PROCESS,... ). Valid values are available via [ChannelType](#channel-type))
+
+The result of `traceOutgoingRemoteCall()` is a tracer object to be used for further operations related to this trace (see [Tracers](#tracers) for details).
+As an outgoing remote call is _taggable_ a Dynatrace tag shall be created from tracer after it has been started and embedded to the remote call message content.
+
+**Example:**
+
+```js
+// Issue a traced outgoing remote call
+async function tracedOutgoingRemoteCall(method, data) {
+  const tracer = Api.traceOutgoingRemoteCall({
+    serviceEndpoint: "ChildProcess",
+    serviceMethod: method,
+    serviceName: "StringManipulator",
+    channelType: Sdk.ChannelType.NAMED_PIPE
+  });
+
+  try {
+    // start tracer, get dynatrace tag and trigger sending via sendMessage()
+    return await tracer.start(function sendTaggedMessage() {
+      // getting a tag from tracer needs to be done after start()
+      const dtTag = tracer.getDynatraceStringTag();
+      return sendMessage(method, data, dtTag);
+    });
+  } catch (e) {
+    tracer.error(e);
+    throw e;
+  } finally {
+    tracer.end();
+  }
+}
+```
+
+#### Trace incoming remote calls
+
+An incoming remote call is traced by calling `traceIncomingRemoteCall()` passing an object with following properties:
+
+* `serviceMethod` Mandatory - a string holding the name of the called remote method
+* `serviceName` Mandatory - a string holding the name of the remote service
+* `serviceEndpoint` Mandatory - a string describing the logical deployment endpoint of the remote service on server side
+* `protocolName` Optional - a string describing the protocol used (e.g. Protobuf, GIOP,...), only for display purposes
+* `dynatraceTag` - a `string` or `Buffer` holding the received Dynatrace tag received
+
+The result of this call is a tracer object to be used for further operations related to this trace (see [Tracers](#tracers)).
+
+**Example:**
+
+```js
+// trace and handle incoming messages
+async function tracedMessageHandler(message) {
+  const tracer = Api.traceIncomingRemoteCall({
+    serviceEndpoint: "ChildProcess",
+    serviceMethod: message.method,
+    serviceName: "StringManipulator",
+    dynatraceTag: message.traceTag,   // extract and set the dynatrace tag
+    protocolName: "Json"              // optional
+  });
+
+  try {
+    // start tracer and trigger actual message processing via processMessage(message)
+    const result = await tracer.start(processMessage, message);
+
+    // send result calculated by processMessage() back to caller
+    process.send({ result: result, id: message.id });
+
+    // end tracer
+    tracer.end();
+  } catch (e) {
+    // send error back
+    process.send({ error: e.message, id: message.id });
+
+    // set error and end tracer
+    tracer.error(e).end();
+  }
+}
+```
+
+### Trace SQL database requests
 
 A SQL database request is traced by calling `traceSQLDatabaseRequest()` which requires a database info object as first argument and an object with request specific data as second parameter.
 
 The database info is an object which usually doesn't change during runtime. It holds following properties:
 
-- `name` Mandatory - a string defining the name of the database
-- `vendor` Mandatory - a string holding the database vendor name (e.g. Oracle, MySQL, ...), can be an user defined name. If possible use a constant defined in [DatabaseVendor](#constants-for-database-vendors)
+* `name` Mandatory - a string defining the name of the database
+* `vendor` Mandatory - a string holding the database vendor name (e.g. Oracle, MySQL, ...), can be a user defined name. If possible use a constant defined in [DatabaseVendor](#database-vendors)
 
 Additionally, it holds following properties describing the connection to the database. Depending on the actual connection used the corresponding property/properties shall be set.
-If the specific information like host/socketPath/... is not available the property channelType shall be set.
+If the specific information like host/socketPath/... is not available, the property channelType shall be set.
 
-- `host` A string specifying the hostname/IP of the server side in case of a TCP/IP connection is used (note that OneAgent may try to resolve the hostname)
-- `port` The TCP/IP port (optional)
-- `socketPath` A string specifying the UNIX domain socket file
-- `pipeName` A string specifying the name of the pipe
-- `channelType` Specifies the protocol used as communication channel (e.g. TCP/IP, IN_PROCESS,... ). Valid values are available via [ChannelType](#channel-type-constants).
+* `host` A string specifying the hostname/IP of the server side in case of a TCP/IP connection is used (note that OneAgent may try to resolve the hostname)
+* `port` The TCP/IP port (optional)
+* `socketPath` A string specifying the UNIX domain socket file
+* `pipeName` A string specifying the name of the pipe
+* `channelType` Specifies the protocol used as communication channel (e.g. TCP/IP, IN_PROCESS,... ). Valid values are available via [ChannelType](#channel-type).
 
 The second argument holds data describing the concrete operation and holds following properties:
 
-- `statement` Mandatory - a string holding the SQL statement to be sent to database.
+* `statement` Mandatory - a string holding the SQL statement to be sent to database.
 
-The result of `traceSQLDatabaseRequest()` is a tracer object to be used for further operations related to this trace (see [Common characteristics of tracers](#common-characteristics-of-tracers) for details).
+The result of `traceSQLDatabaseRequest()` is a tracer object to be used for further operations related to this trace (see [Tracers](#tracers) for details).
 
 Besides the common APIs for outgoing tracers this tracer offers the additional method `setResultData()` which may be used to set details about the result of the database request.
 It receives an object with following properties:
 
-- `rowsReturned` Optional - Number of rows returned by this traced database request. Only positive values are allowed
-- `roundTripCount` Optional - Count of round-trips that took place. Only positive values are allowed
+* `rowsReturned` Optional - Number of rows returned by this traced database request. Only positive values are allowed
+* `roundTripCount` Optional - Count of round-trips that took place. Only positive values are allowed
 
 Please note that SQL database traces are only created if they occur within some other SDK trace (e.g. incoming remote call) or an OneAgent built-in trace (e.g. incoming web request).
 
-**Example**
+**Example:**
 
 ```js
 // Static info describing the database
@@ -100,185 +292,6 @@ function tracedSqlDatabaseRequest(sql, clientCb) {
 }
 ```
 
-### Trace an outgoing remote call
-
-An outgoing remote call is traced by calling `traceOutgoingRemoteCall()` passing an object with following properties:
-
-- `serviceMethod` Mandatory - a string holding the name of the called remote method
-- `serviceName` Mandatory - a string holding the name of the remote service
-- `serviceEndpoint` Mandatory - a string describing the logical endpoint of the remote service. In case of a clustered/load balanced service, the serviceEndpoint represents the common logical endpoint (e.g. registry://staging-environment/myservices/serviceA) whereas the ConnectionInfo describes the actual communication endpoint. As such a single serviceEndpoint can have many connections.
-- `protocolName` Optional - a string describing the protocol used (e.g. Protobuf, GIOP,...), only for display purposes
-
-Additionally it holds following properties describing the connection to the remote service. Depending on the connection type the corresponding property/properties shall be set.
-If the specific information like host/socketPath/... is not available the property channelType shall be set.
-
-- `host` A string specifying the hostname/IP of the server side in case of a TCP/IP connection is used (note that OneAgent may try to resolve the hostname)
-- `port` The TCP/IP port (optional)
-- `socketPath` A string specifying the UNIX domain socket file
-- `pipeName` A string specifying the name of the Pipe
-- `channelType` Specifies the protocol used as communication channel (e.g. TCP/IP, IN_PROCESS,... ). Valid values are available via [ChannelType](#channel-type-constants))
-
-The result of `traceOutgoingRemoteCall()` is a tracer object to be used for further operations related to this trace (see [Common characteristics of tracers](#common-characteristics-of-tracers) for details).
-As an outgoing remote call is _taggable_ a Dynatrace tag shall be created from tracer after it has been started and embedded to the remote call message content.
-
-**Example**
-
-```js
-// Issue a traced outgoing remote call
-async function tracedOutgoingRemoteCall(method, data) {
-  const tracer = Api.traceOutgoingRemoteCall({
-    serviceEndpoint: "ChildProcess",
-    serviceMethod: method,
-    serviceName: "StringManipulator",
-    channelType: Sdk.ChannelType.NAMED_PIPE
-  });
-
-  try {
-    // start tracer, get dynatrace tag and trigger sending via sendMessage()
-    return await tracer.start(function sendTaggedMessage() {
-      // getting a tag from tracer needs to be done after start()
-      const dtTag = tracer.getDynatraceStringTag();
-      return sendMessage(method, data, dtTag);
-    });
-  } catch (e) {
-    tracer.error(e);
-    throw e;
-  } finally {
-    tracer.end();
-  }
-}
-
-```
-
-### Trace an incoming remote call
-
-An incoming remote call is traced by calling `traceIncomingRemoteCall()` passing an object with following properties:
-
-- `serviceMethod` Mandatory - a string holding the name of the called remote method
-- `serviceName` Mandatory - a string holding the name of the remote service
-- `serviceEndpoint` Mandatory - a string describing the logical deployment endpoint of the remote service on server side
-- `protocolName` Optional - a string describing the protocol used (e.g. Protobuf, GIOP,...), only for display purposes
-- `dynatraceTag` - a `string` or `Buffer` holding the received Dynatrace tag received
-
-The result of this call is a tracer object to be used for further operations related to this trace (see [Common characteristics of tracers](#common-characteristics-of-tracers)).
-
-**Example**
-
-```js
-// trace and handle incoming messages
-async function tracedMessageHandler(message) {
-  const tracer = Api.traceIncomingRemoteCall({
-    serviceEndpoint: "ChildProcess",
-    serviceMethod: message.method,
-    serviceName: "StringManipulator",
-    dynatraceTag: message.traceTag,   // extract and set the dynatrace tag
-    protocolName: "Json"              // optional
-  });
-
-  try {
-    // start tracer and trigger actual message processing via processMessage(message)
-    const result = await tracer.start(processMessage, message);
-
-    // send result calculated by processMessage() back to caller
-    process.send({ result: result, id: message.id });
-
-    // end tracer
-    tracer.end();
-  } catch (e) {
-    // send error back
-    process.send({ error: e.message, id: message.id });
-
-    // set error and end tracer
-    tracer.error(e).end();
-  }
-}
-```
-
-### Common characteristics of tracers
-
-The life-cycle of a tracer is as follows:
-
-1. Create a trace using the `traceXXX` method matching to your use case. For incoming taggable traces pass the received Dynatrace tag (if present) to the `traceXXX` method.
-1. Start the trace which in turn invokes and times the given handler function.
-1. For outgoing taggable traces fetch a Dynatrace tag and include it to the message sent out.
-1. Optional mark the traced operation as failed via a call to `error()`
-1. End the trace once the operation is done. For outgoing traces you may pass an callback to be included in this trace.
-
-Each tracer offers following methods:
-
-- `start(handler, ...args)` Start a trace and calls the given handler function with the provides arguments. Returns the return value of handler.
-- `startWithContext(handler, thisObj, ...args)` Like `start()` but allows to specify the `this` context for the call to handler.
-- `error(err)` Mark trace as failed and attach an error object. Shall be call at max once per trace. Does not end the trace! Returns the tracer itself.
-- `end()` End the trace.
-
-Tracers for outgoing requests additionally offer enhanced methods to end a trace which allow to include the follow-up callback to the PurePath of this trace.
-
-- `end(callback, ...args)` End the trace like `end()` but additionally calls the passed callback with given arguments. The return value from callback is forwarded to caller of `end`.
-- `endWithContext(callback, thisObj, ...args)` like `end()` above but with the possibility to specify the `this` context for the callback.
-
-Tracers for outgoing taggable requests additionally offer following methods to get a _dynatrace tag_ to be sent to remote service after the trace was started:
-
-- `getDynatraceStringTag()` returns a Dynatrace tag encoded as `string`
-- `getDynatraceByteTag()` returns a Dynatrace tag binary encoded as `Buffer`
-
-This Dynatrace tag needs to be embedded into the message sent to remote service. Depending on the concrete protocol used the `string` or binary representation may fit better and it's up to the user to decide which variant to use.
-On incoming service this tag needs to be extracted by the user and passed to the corresponding `traceXXX` method using the `dynatraceTag` property of the arguments to allow linking of outgoing and the corresponding incoming trace.
-
-The tracer objects returned by above methods are always valid even if there is no OneAgent present or no trace is created for whatever reason. In this case the methods are still present to avoid the need of extra checking in client code.
-
-Please note that OneAgent uses the name of the given functions in `start()` and `end()` to name PurePath nodes. Therefore we recommend to prefer named functions to anonymous functions to give you higher quality traces.
-
-### Channel Type Constants
-
-The values of constant `ChannelType` specify the type of the transport channel used. Following values are provided:
-
-- `TCP_IP` Communication via TCP/IP
-- `UNIX_DOMAIN_SOCKET` Communication via UNIX domain socket
-- `NAMED_PIPE` Communication via named pipe
-- `IN_PROCESS` Communication is some mechanism within current process (e.g. via files,...)
-- `OTHER` To be used for any other channel type
-
-### Constants for database vendors
-
-The values of constant `DatabaseVendor` may be used as input for `traceSQLDatabaseRequest()`. Following values are provided:
-
-- `APACHE_HIVE`
-- `CLOUDSCAPE`
-- `HSQLDB`
-- `PROGRESS`
-- `MAXDB`
-- `HANADB`
-- `INGRES`
-- `FIRST_SQL`
-- `ENTERPRISE_DB`
-- `CACHE`
-- `ADABAS`
-- `FIREBIRD`
-- `DB2`
-- `DERBY_CLIENT`
-- `DERBY_EMBEDDED`
-- `FILEMAKER`
-- `INFORMIX`
-- `INSTANT_DB`
-- `INTERBASE`
-- `MYSQL`
-- `MARIADB`
-- `NETEZZA`
-- `ORACLE`
-- `PERVASIVE`
-- `POINTBASE`
-- `POSTGRESQL`
-- `SQLSERVER`
-- `SQLITE`
-- `SYBASE`
-- `TERADATA`
-- `VERTICA`
-- `CASSANDRA`
-- `H2`
-- `COLDFUSION_IMQ`
-- `REDSHIFT`
-- `COUCHBASE`
-
 ### Set custom request attributes
 
 The API `addCustomRequestAttribute()` adds a custom request attribute to the currently traced service call. There is no reference to a tracer needed as OneAgent SDK will select the current open trace. This may be a trace created by SDK or
@@ -286,8 +299,8 @@ a trace created by built in sensors of OneAgent. The API may be called several t
 
 `addCustomRequestAttribute()` takes two arguments:
 
-- `key` Mandatory - a string specifying the name of the attribute
-- `value` Mandatory - a string or number specifying the attribute value
+* `key` Mandatory - a string specifying the name of the attribute
+* `value` Mandatory - a string or number specifying the attribute value
 
 ```js
 Api.addCustomRequestAttribute("fooAttribute", "bar");
@@ -300,16 +313,16 @@ Api.addCustomRequestAttribute("barAttribute", 15.34);
 
 The method `getCurrentState()` returns the current status of SDK. Valid values are available via constant object `SDK.SDKState`:
 
-- `ACTIVE` SDK is connected to OneAgent and capturing data.
-- `TEMPORARILY_INACTIVE` SDK is connected to OneAgent, but capturing is disabled. It is good practice to skip creating SDK transactions to save resources. The SDK state should be checked regularly as it may change at every point in time.
-- `PERMANENTLY_INACTIVE` SDK isn't connected to OneAgent, so it will never capture data. This SDK state will never change during the lifetime of the process. It is good practice to never call any SDK API to save resources.
+* `ACTIVE` SDK is connected to OneAgent and capturing data.
+* `TEMPORARILY_INACTIVE` SDK is connected to OneAgent, but capturing is disabled. It is good practice to skip creating SDK transactions to save resources. The SDK state should be checked regularly as it may change at every point in time.
+* `PERMANENTLY_INACTIVE` SDK isn't connected to OneAgent, so it will never capture data. This SDK state will never change during the lifetime of the process. It is good practice to never call any SDK API to save resources.
 
 #### Set callbacks for logging
 
 The method `setLoggingCallback(callbacks)` can be used to set callbacks for warning and error logs. A logging callback receives a string as argument. As parameter pass an object with following properties:
 
-- `warning` Optional - a function accepting a string as parameter called to pass warning messages
-- `error` Optional - a function accepting a string as parameter called to pass error messages
+* `warning` Optional - a function accepting a string as parameter called to pass warning messages
+* `error` Optional - a function accepting a string as parameter called to pass error messages
 
 Omitting a callback property will uninstall a previous installed callback.
 
@@ -320,52 +333,68 @@ Api.setLoggingCallbacks({
 });
 ```
 
-### PassContext
+### Constants
 
-**Example: Regular callbacks**
-Assume `some.asyncFunction()` in below sample causes loss of transactional context in OneAgent. To ensure that OneAgent correctly shows activities triggered inside the callback of this function `passContext()` can be used to create a closure preserving the transactional context active at call time of `some.asyncFunction()`.
+#### Channel Type
 
-```js
-const Api = require('@dynatrace/oneagent-sdk').createInstance();
+The values of constant `ChannelType` specify the type of the transport channel used. Following values are provided:
 
-some.asyncFunction(someParam, Api.passContext(function(err, result) {
-  // Context is preserved
-  http.get('https://some-api.xyz/service', Api.passContext((res) => {
-    // other activity, e.g. outgoing web requests,...
-  }));
-}));
-```
+* `TCP_IP` Communication via TCP/IP
+* `UNIX_DOMAIN_SOCKET` Communication via UNIX domain socket
+* `NAMED_PIPE` Communication via named pipe
+* `IN_PROCESS` Communication is some mechanism within current process (e.g. via files,...)
+* `OTHER` To be used for any other channel type
 
-### Please Note
+#### Database vendors
 
-- Make sure that this module is required after Dynatrace OneAgent
-- Using this module will not cause any errors if no OneAgent is present (e.g. in testing)
-- The wrapping via `passContext()` needs to happen call time of the corresponding sync call
+The values of constant `DatabaseVendor` may be used as input for `traceSQLDatabaseRequest()`. Following values are provided:
 
-```js
-// This will *NOT* work as transactional context at call time of some.asyncFunction() is not preserved
-// instead the transactional context at definition of doSomething() is preserved which is not
-// related to the relevant transaction triggered by calling some.asyncFunction().
-const wrappedFunction = dta.passContext(someFunction);
-function doSomething() {
-  some.asyncFunction('someParam', wrappedFunction);
-}
+* `APACHE_HIVE`
+* `CLOUDSCAPE`
+* `HSQLDB`
+* `PROGRESS`
+* `MAXDB`
+* `HANADB`
+* `INGRES`
+* `FIRST_SQL`
+* `ENTERPRISE_DB`
+* `CACHE`
+* `ADABAS`
+* `FIREBIRD`
+* `DB2`
+* `DERBY_CLIENT`
+* `DERBY_EMBEDDED`
+* `FILEMAKER`
+* `INFORMIX`
+* `INSTANT_DB`
+* `INTERBASE`
+* `MYSQL`
+* `MARIADB`
+* `NETEZZA`
+* `ORACLE`
+* `PERVASIVE`
+* `POINTBASE`
+* `POSTGRESQL`
+* `SQLSERVER`
+* `SQLITE`
+* `SYBASE`
+* `TERADATA`
+* `VERTICA`
+* `CASSANDRA`
+* `H2`
+* `COLDFUSION_IMQ`
+* `REDSHIFT`
+* `COUCHBASE`
 
-// This works, passContext() is called at invocation time of some.asyncFunction()
-function doSomething() {
-  some.asyncFunction('someParam', dta.passContext(someFunction));
-}
-```
+### Pass Context
 
-## Further Information
+Dynatrace transparently wraps *supported* libraries to add context information. For every yet *unsupported* module `passContext()` can be used to provide transactional context to callbacks.
 
-### What is transactional context
+**What is transactional context?**
 
-[Dynatrace patented PurePath Technology®](https://www.dynatrace.com/en_us/application-performance-management/products/purepath-technology.html) captures timing and code level context for *all* transactions,
-end-to-end, from user click, across all tiers, to the database of record and back.
-Technically this means that Dynatrace adds transactional context to any inbound and outbound function calls of an application.
+[Dynatrace patented PurePath Technology®](https://www.dynatrace.com/en_us/application-performance-management/products/purepath-technology.html) captures timing and code level context for *all* transactions, end-to-end, from user click, across all tiers, to the database of record and back. Technically this means that Dynatrace adds transactional context to any inbound and outbound function calls of an application.
 
-### What does this mean for Node.js applications
+**What does this mean for Node.js applications?**
 
 Node.js is single threaded - its control flow is based on events and asynchronous callbacks.
 
@@ -386,40 +415,76 @@ collection.findOne({_id: doc_id}, callback);
 
 ```
 
-After `collection.findOne()` is executed asynchronously `callback()` will be called.
-`callback()` again contains an asynchronous call `http.get()` which performs an outbound HTTP request.
-If there is a current transactional context with an ongoing trace, Dynatrace OneAgent will transparently add a HTTP header containing a Dynatrace tag to this outbound request.
-The next tier - if instrumented with OneAgent - will continue this trace then.
+After `collection.findOne()` is executed asynchronously `callback()` will be called. `callback()` again contains an asynchronous call `http.get()` which performs an outbound HTTP request. If there is a current transactional context with an ongoing trace, Dynatrace OneAgent will transparently add a HTTP header containing a Dynatrace tag to this outbound request. The next tier - if instrumented with OneAgent - will continue this trace then. Without further intervention any transactional context would get lost between asynchronous invocation and a callback. Currently the only reliable way to pass over context information to a callback is called 'wrapping'.
 
-Without further intervention any transactional context would get lost between asynchronous invocation and a callback.
+**Example: Regular callbacks**
+Assume `some.asyncFunction()` in below sample causes loss of transactional context in OneAgent. To ensure that OneAgent correctly shows activities triggered inside the callback of this function `passContext()` can be used to create a closure preserving the transactional context active at call time of `some.asyncFunction()`.
 
-Currently the only reliable way to pass over context information to a callback is called 'wrapping'.
+```js
+const Api = require('@dynatrace/oneagent-sdk').createInstance();
 
-This means: Dynatrace will transparently wrap *supported* libraries to add context information.
-For every yet *unsupported* module `passContext()` can be used to provide transactional context to callbacks.
+some.asyncFunction(someParam, Api.passContext(function(err, result) {
+  // Context is preserved
+  http.get('https://some-api.xyz/service', Api.passContext((res) => {
+    // other activity, e.g. outgoing web requests,...
+  }));
+}));
+```
 
-## OneAgent SDK for Node.Js Requirements
+**Important: The wrapping via `passContext()` needs to happen call time of the corresponding sync call**
 
-- Dynatrace OneAgent for Node.JS needs to be installed on the system that is to be monitored (supported versions see below).
-- In case OneAgent is loaded via [OneAgent NPM module](https://www.npmjs.com/package/@dynatrace/oneagent) or some similar tool it's important to require the SDK afterwards.
+```js
+// This will *NOT* work as transactional context at call time of some.asyncFunction() is not preserved
+// instead the transactional context at definition of doSomething() is preserved which is not
+// related to the relevant transaction triggered by calling some.asyncFunction().
+const wrappedFunction = dta.passContext(someFunction);
+function doSomething() {
+  some.asyncFunction('someParam', wrappedFunction);
+}
 
-## Compatibility OneAgent SDK for Node.Js releases with OneAgent releases
+// This works, passContext() is called at invocation time of some.asyncFunction()
+function doSomething() {
+  some.asyncFunction('someParam', dta.passContext(someFunction));
+}
+```
 
-|OneAgent SDK for Node.Js|Dynatrace OneAgent|
-|:-----------------------|:-----------------|
-|1.2.x                   |>=1.145           |
-|1.1.x                   |>=1.143           |
-|1.0.x                   |>=1.137           |
+## Further readings
 
-## Support
+* [What is the OneAgent SDK?](https://www.dynatrace.com/support/help/extend-dynatrace/oneagent-sdk/what-is-oneagent-sdk/) in the Dynatrace documentation
+* [Feedback & Roadmap thread in AnswerHub](https://answers.dynatrace.com/spaces/483/dynatrace-product-ideas/idea/198106/planned-features-for-oneagent-sdk.html)
+* [Dynatrace OneAgent SDK for Node.js: Extend end-to-end visibility](https://www.dynatrace.com/news/blog/dynatrace-oneagent-sdk-for-node-js-extend-end-to-end-visibility/)
 
-The Dynatrace OneAgent SDK for Node.Js is currently in beta. Please report issues via the [GitHub issue tracker](https://github.com/Dynatrace/OneAgent-SDK-for-NodeJs/issues/).
+## Help & Support
+
+The Dynatrace OneAgent SDK for Node.js is an open source project, currently in beta status. The features are fully supported by Dynatrace.
+
+### Get Help
+
+* Ask a question in the [product forums](https://answers.dynatrace.com/spaces/482/view.html)
+* Read the [product documentation](https://www.dynatrace.com/support/help/)
+
+### Open a [GitHub issue](https://github.com/Dynatrace/OneAgent-SDK-for-Java/issues) to
+
+* Report minor defects, minor items or typos
+* Ask for improvements or changes in the SDK API
+* Ask any questions related to the community effort
+
+SLAs don't apply for GitHub tickets
+
+### Customers can open a ticket on the [Dynatrace support portal](https://support.dynatrace.com/supportportal/) to
+
+* Get support from the Dynatrace technical support engineering team
+* Manage and resolve product related technical issues
+
+SLAs apply according to the customer's support level.
 
 ## Release Notes
 
-|Version|Description                                              |
-|:------|:--------------------------------------------------------|
-|1.2.0  |06.2018    |Add support to add custom request attributes |
-|1.1.0  |add setResultData() for SQL Database tracer              |
-|1.0.3  |early access to beta                                     |
-|1.0.1  |Initial release                                          |
+see also [Releases](https://github.com/Dynatrace/OneAgent-SDK-for-NodeJs/releases)
+
+|Version|Description                                 |
+|:------|:-------------------------------------------|
+|1.2.0  |add support for custom request attributes   |
+|1.1.0  |add setResultData() for SQL Database tracer |
+|1.0.3  |early access to beta                        |
+|1.0.1  |Initial release                             |
