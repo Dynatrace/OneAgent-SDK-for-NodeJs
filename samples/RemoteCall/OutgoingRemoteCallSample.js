@@ -52,7 +52,7 @@ remoteCallServer.on("message", (message) => {
 });
 
 // send a message to remote server, returns a Promise
-function sendMessage(method, data, dtTag) {
+function doOutgoingRemoteCall(method, data, dtTag) {
   return new Promise((resolve, reject) => {
     const msg = {
       method: method,
@@ -76,17 +76,18 @@ function sendMessage(method, data, dtTag) {
 async function tracedOutgoingRemoteCall(method, data) {
   const tracer = Api.traceOutgoingRemoteCall({
     serviceEndpoint: "ChildProcess",
-    serviceMethod: method,
+    serviceMethod: method,  // the name of the remote method called
     serviceName: "StringManipulator",
     channelType: Sdk.ChannelType.NAMED_PIPE
   });
 
   try {
-    // start tracer, get dynatrace tag and trigger sending via sendMessage()
-    return await tracer.start(function sendTaggedMessage() {
+    // start tracer, get dynatrace tag and trigger sending via doOutgoingRemoteCall()
+    return await tracer.start(function triggerTaggedRemoteCall() {
       // getting a tag from tracer needs to be done after start()
       const dtTag = tracer.getDynatraceStringTag();
-      return sendMessage(method, data, dtTag);
+      // now trigger the actual remote call
+      return doOutgoingRemoteCall(method, data, dtTag);
     });
   } catch (e) {
     tracer.error(e);

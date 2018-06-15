@@ -137,11 +137,11 @@ An outgoing remote call is traced by calling `traceOutgoingRemoteCall()` passing
 
 * `serviceMethod` Mandatory - a string holding the name of the called remote method
 * `serviceName` Mandatory - a string holding the name of the remote service
-* `serviceEndpoint` Mandatory - a string describing the logical endpoint of the remote service. In case of a clustered/load balanced service, the serviceEndpoint represents the common logical endpoint (e.g. registry://staging-environment/myservices/serviceA) whereas the ConnectionInfo describes the actual communication endpoint. As such a single serviceEndpoint can have many connections.
+* `serviceEndpoint` Mandatory - a string describing the logical endpoint of the remote service. In case of a clustered/load balanced service, the `serviceEndpoint` represents the common logical endpoint (e.g. registry://staging-environment/myservices/serviceA) whereas the ConnectionInfo describes the actual communication endpoint. As such a single serviceEndpoint can have many connections.
 * `protocolName` Optional - a string describing the protocol used (e.g. Protobuf, GIOP,...), only for display purposes
 
 Additionally it holds following properties describing the connection to the remote service. Depending on the connection type the corresponding property/properties shall be set.
-If the specific information like host/socketPath/... is not available, the property channelType shall be set.
+If the specific information like host/socketPath/... is not available, the property `channelType` shall be set.
 
 * `host` A string specifying the hostname/IP of the server side in case of a TCP/IP connection is used (note that OneAgent may try to resolve the hostname)
 * `port` The TCP/IP port (optional)
@@ -152,24 +152,25 @@ If the specific information like host/socketPath/... is not available, the prope
 The result of `traceOutgoingRemoteCall()` is a tracer object to be used for further operations related to this trace (see [Tracers](#tracers) for details).
 As an outgoing remote call is _taggable_ a Dynatrace tag shall be created from tracer after it has been started and embedded to the remote call message content.
 
-**Example:**
+**Example (see [OutgoingRemoteCallSample.js](samples/RemoteCall/OutgoingRemoteCallSample.js) for more details):**
 
 ```js
 // Issue a traced outgoing remote call
 async function tracedOutgoingRemoteCall(method, data) {
   const tracer = Api.traceOutgoingRemoteCall({
     serviceEndpoint: "ChildProcess",
-    serviceMethod: method,
+    serviceMethod: method,  // the name of the remote method called
     serviceName: "StringManipulator",
     channelType: Sdk.ChannelType.NAMED_PIPE
   });
 
   try {
-    // start tracer, get dynatrace tag and trigger sending via sendMessage()
-    return await tracer.start(function sendTaggedMessage() {
+    // start tracer, get dynatrace tag and trigger sending via doOutgoingRemoteCall()
+    return await tracer.start(function triggerTaggedRemoteCall() {
       // getting a tag from tracer needs to be done after start()
       const dtTag = tracer.getDynatraceStringTag();
-      return sendMessage(method, data, dtTag);
+      // now trigger the actual remote call
+      return doOutgoingRemoteCall(method, data, dtTag);
     });
   } catch (e) {
     tracer.error(e);
@@ -192,7 +193,7 @@ An incoming remote call is traced by calling `traceIncomingRemoteCall()` passing
 
 The result of this call is a tracer object to be used for further operations related to this trace (see [Tracers](#tracers)).
 
-**Example:**
+**Example (see [IncomingRemoteCallSample.js](samples/RemoteCall/IncomingRemoteCallSample.js) for more details):**
 
 ```js
 // trace and handle incoming messages
@@ -256,7 +257,7 @@ It receives an object with following properties:
 
 Please note that SQL database traces are only created if they occur within some other SDK trace (e.g. incoming remote call) or an OneAgent built-in trace (e.g. incoming web request).
 
-**Example:**
+**Example (see [DatabaseRequestSample.js](samples/Database/DatabaseRequestSample.js) for more details):**
 
 ```js
 // Static info describing the database
@@ -301,6 +302,8 @@ a trace created by built in sensors of OneAgent. The API may be called several t
 
 * `key` Mandatory - a string specifying the name of the attribute
 * `value` Mandatory - a string or number specifying the attribute value
+
+**Example (see [CustomRequestAttributesSample.js](samples/CustomRequestAttributes/CustomRequestAttributesSample.js) for more details):**
 
 ```js
 Api.addCustomRequestAttribute("fooAttribute", "bar");
