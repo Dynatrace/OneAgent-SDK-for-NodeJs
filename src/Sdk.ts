@@ -79,17 +79,14 @@ export const enum ChannelType {
 export interface ConnectionInfo {
 	/// The hostname/IP of the server-side in case a TCP/IP connection is used
 	host?: string;
-	// The port in case a TCP/IP connection is used
+	/// The port in case a TCP/IP connection is used
 	port?: number;
-
 
 	/// The path of the UNIX domain socket file
 	socketPath?: string;
 
-
 	/// The name of the pipe
 	pipeName?: string;
-
 
 	/// Set this field if no other field can be set
 	channelType?: ChannelType;
@@ -261,13 +258,32 @@ export interface OutgoingTaggable {
 /**
  * Description of a database.
  */
-export interface DatabaseInfo extends ConnectionInfo {
+export interface DatabaseInfoCommon extends ConnectionInfo {
 	/// The name of the database
 	name: string;
 
 	/// The database vendor name (e.a. Oracle, MySQL, ...) can be an user defined name. If possible use a constant defined in DatabaseVendor.
 	vendor: string;
 }
+
+export interface DatabaseInfoTcp extends DatabaseInfoCommon {
+	host: string;
+	port?: number;
+}
+
+export interface DatabaseInfoDomainSocket extends DatabaseInfoCommon {
+	socketPath: string;
+}
+
+export interface DatabaseInfoPipe extends DatabaseInfoCommon {
+	pipeName: string;
+}
+
+export interface DatabaseInfoChannelType extends DatabaseInfoCommon {
+	channelType: ChannelType;
+}
+
+export type DatabaseInfo = DatabaseInfoTcp | DatabaseInfoDomainSocket | DatabaseInfoPipe | DatabaseInfoChannelType;
 
 /**
  *  Specifies the SQL DatabaseTracer start data
@@ -332,7 +348,7 @@ export interface IncomingRemoteCallTracer extends IncomingTracer {
 /**
  * Specifies the start data for an outgoing remote call.
  */
-export interface OutgoingRemoteCallStartData extends ConnectionInfo {
+export interface OutgoingRemoteCallStartDataCommon extends ConnectionInfo {
 	/// Name of the called remote method
 	serviceMethod: string;
 
@@ -349,6 +365,25 @@ export interface OutgoingRemoteCallStartData extends ConnectionInfo {
 	/// The name of the protocol, only for display purposes
 	protocolName?: string;
 }
+
+export interface OutgoingRemoteCallStartDataTcp extends OutgoingRemoteCallStartDataCommon {
+	host: string;
+	port?: number;
+}
+
+export interface OutgoingRemoteCallStartDataDomainSocket extends OutgoingRemoteCallStartDataCommon {
+	socketPath: string;
+}
+
+export interface OutgoingRemoteCallStartDataPipe extends OutgoingRemoteCallStartDataCommon {
+	pipeName: string;
+}
+
+export interface OutgoingRemoteCallStartDataChannelType extends OutgoingRemoteCallStartDataCommon {
+	channelType: ChannelType;
+}
+
+export type OutgoingRemoteCallStartData = OutgoingRemoteCallStartDataTcp | OutgoingRemoteCallStartDataDomainSocket | OutgoingRemoteCallStartDataPipe | OutgoingRemoteCallStartDataChannelType;
 
 /**
  * Tracer for an outgoing remote call.

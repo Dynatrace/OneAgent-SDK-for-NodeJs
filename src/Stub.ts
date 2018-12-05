@@ -18,6 +18,12 @@ import * as Sdk from "./Sdk";
 
 // ============================================================================
 
+const useNewBufferApi =  typeof(Buffer.alloc) === "function";
+
+function BufferFrom(str: string, encoding?: string): Buffer {
+	// tslint:disable-next-line:deprecation
+	return useNewBufferApi ? Buffer.from(str, encoding) : new Buffer(str, encoding);
+}
 
 class DummyTracer implements Sdk.Tracer {
 	public start<R>(handler: (...args: any[]) => R, ...args: any[]): R {
@@ -57,7 +63,7 @@ class DummyOutgoingTaggableTracer extends DummyOutgoingTracer implements Sdk.Tra
 		return "";
 	}
 	public getDynatraceByteTag(): Buffer {
-		return new Buffer("");
+		return BufferFrom("");
 	}
 }
 

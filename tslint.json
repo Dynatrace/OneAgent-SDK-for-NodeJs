@@ -8,6 +8,7 @@
 			"statements"
 		],
 		"comment-format": false,
+		"deprecation": true,
 		"no-empty-interface": false,
 		"indent": [
 			true,
@@ -24,21 +25,36 @@
 			true,
 			{
 				"order": [
-					"public-constructor",
-					"public-static-method",
-					"public-static-field",
-					"public-instance-method",
-					"public-instance-field",
-					"protected-constructor",
-					"protected-static-method",
-					"protected-static-field",
-					"protected-instance-method",
-					"protected-instance-field",
-					"private-constructor",
-					"private-static-method",
-					"private-static-field",
-					"private-instance-method",
-					"private-instance-field"
+					{
+						"name": "public",
+						"kinds": [
+							"public-static-field",
+							"public-static-method",
+							"public-instance-field",
+							"public-constructor",
+							"public-instance-method"
+						]
+					},
+					{
+						"name": "protected",
+						"kinds": [
+							"protected-static-field",
+							"protected-static-method",
+							"protected-instance-field",
+							"protected-constructor",
+							"protected-instance-method"
+						]
+					},
+					{
+						"name": "private",
+						"kinds": [
+							"private-static-field",
+							"private-static-method",
+							"private-instance-field",
+							"private-constructor",
+							"private-instance-method"
+						]
+					}
 				]
 			}
 		],
@@ -46,6 +62,8 @@
 			true,
 			5
 		],
+		"no-unnecessary-type-assertion": true,
+		"no-unused-expression": [true, "allow-new"],
 		"object-literal-shorthand": false,
 		"object-literal-sort-keys": false,
 		"ordered-imports": false,
@@ -58,9 +76,17 @@
 		]
 	},
 	"jsRules": {
+		"indent": [
+			true,
+			"tabs"
+		],
 		"max-line-length": [
 			true,
 			200
+		],
+		"no-consecutive-blank-lines": [
+			true,
+			5
 		],
 		"object-literal-sort-keys": false,
 		"trailing-comma": [

@@ -487,6 +487,7 @@ see also [Releases](https://github.com/Dynatrace/OneAgent-SDK-for-NodeJs/release
 
 |Version|Description                                 |
 |:------|:-------------------------------------------|
+|1.2.1  |improve type definitions                    |
 |1.2.0  |add support for custom request attributes   |
 |1.1.0  |add setResultData() for SQL Database tracer |
 |1.0.3  |early access to beta                        |
