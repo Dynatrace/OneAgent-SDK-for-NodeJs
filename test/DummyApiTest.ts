@@ -37,13 +37,31 @@ describe("Dummy", () => {
 		Sinon.assert.calledWithExactly(handlerStub, 1, "2", argObj);
 		Sinon.assert.calledOn(handlerStub, thisArg);
 		Assert.strictEqual(rc, expRc);
-
 		handlerStub.resetHistory();
+
 		rc = tracer.start(handlerStub, "3", argObj, 5);
 		Sinon.assert.callCount(handlerStub, 1);
 		Sinon.assert.calledWithExactly(handlerStub, "3", argObj, 5);
 		Sinon.assert.calledOn(handlerStub, undefined);
 		Assert.strictEqual(rc, expRc);
+		handlerStub.resetHistory();
+
+		Assert.throws(() => tracer.startWithContext({} as any, "this"), "TypeError: OneAgent SDK: Tracer.start() first parameter must be a function, but received object");
+		Assert.throws(() => (tracer as any).startWithContext(), "TypeError: OneAgent SDK: Tracer.start() first parameter must be a function, but received undefined");
+		Assert.throws(() => tracer.start(15 as any), "TypeError: OneAgent SDK: Tracer.start() first parameter must be a function, but received number");
+		Assert.throws(() => (tracer as any).start(), "TypeError: OneAgent SDK: Tracer.start() first parameter must be a function, but received undefined");
+
+		const expError = new RangeError("TestError");
+		handlerStub.throws(expError);
+		Assert.throws(() => tracer.startWithContext(handlerStub, thisArg), expError);
+		Sinon.assert.callCount(handlerStub, 1);
+		Sinon.assert.calledOn(handlerStub, thisArg);
+		handlerStub.resetHistory();
+
+		Assert.throws(() => tracer.start(handlerStub), expError);
+		Sinon.assert.callCount(handlerStub, 1);
+		Sinon.assert.calledOn(handlerStub, undefined);
+		handlerStub.resetHistory();
 	}
 
 	// ------------------------------------------------------------------------
@@ -70,13 +88,29 @@ describe("Dummy", () => {
 		Sinon.assert.calledOn(handlerStub, thisArg);
 		Assert.strictEqual(rc, expRc);
 		tracer.end();
-
 		handlerStub.resetHistory();
+
 		rc = tracer.end(handlerStub, "3", argObj, 5);
 		Sinon.assert.callCount(handlerStub, 1);
 		Sinon.assert.calledWithExactly(handlerStub, "3", argObj, 5);
 		Sinon.assert.calledOn(handlerStub, undefined);
 		Assert.strictEqual(rc, expRc);
+		handlerStub.resetHistory();
+
+		Assert.throws(() => tracer.endWithContext({} as any, "this"), "TypeError: OneAgent SDK: Tracer.end() first parameter must be a function, but received object");
+		Assert.throws(() => tracer.end(15 as any), "TypeError: OneAgent SDK: Tracer.end() first parameter must be a function, but received number");
+
+		const expError = new RangeError("TestError");
+		handlerStub.throws(expError);
+		Assert.throws(() => tracer.endWithContext(handlerStub, thisArg), expError);
+		Sinon.assert.callCount(handlerStub, 1);
+		Sinon.assert.calledOn(handlerStub, thisArg);
+		handlerStub.resetHistory();
+
+		Assert.throws(() => tracer.end(handlerStub), expError);
+		Sinon.assert.callCount(handlerStub, 1);
+		Sinon.assert.calledOn(handlerStub, undefined);
+		handlerStub.resetHistory();
 	}
 
 	// ========================================================================

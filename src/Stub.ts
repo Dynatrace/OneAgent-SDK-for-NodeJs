@@ -27,10 +27,16 @@ function BufferFrom(str: string, encoding?: string): Buffer {
 
 class DummyTracer implements Sdk.Tracer {
 	public start<R>(handler: (...args: any[]) => R, ...args: any[]): R {
+		if (typeof handler !== "function") {
+			throw new TypeError(`OneAgent SDK: Tracer.start() first parameter must be a function, but received ${typeof(handler)}`);
+		}
 		return handler.call(undefined, ...args);
 	}
 
 	public startWithContext<R>(handler: (...args: any[]) => R, thisObj?: any, ...args: any[]): R {
+		if (typeof handler !== "function") {
+			throw new TypeError(`OneAgent SDK: Tracer.start() first parameter must be a function, but received ${typeof(handler)}`);
+		}
 		return handler.call(thisObj, ...args);
 	}
 
@@ -51,7 +57,10 @@ class DummyOutgoingTracer extends DummyTracer implements Sdk.OutgoingTracer {
 	}
 
 	public endWithContext<R>(handler?: (...args: any[]) => R, thisObj?: any, ...args: any[]): R | undefined {
-		if (typeof handler === "function") {
+		if (handler !== undefined) {
+			if (typeof handler !== "function") {
+				throw new TypeError(`OneAgent SDK: Tracer.end() first parameter must be a function, but received ${typeof(handler)}`);
+			}
 			return handler.call(thisObj, ...args);
 		}
 		return undefined;

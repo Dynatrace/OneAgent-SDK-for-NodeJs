@@ -1,6 +1,6 @@
 {
   "name": "@dynatrace/oneagent-sdk",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Node.js SDK for Dynatrace OneAgent",
   "engines": {
     "node": ">= 4.0.0"
@@ -36,14 +36,14 @@
   ],
   "devDependencies": {
     "@types/mocha": "5.2.5",
-    "@types/node": "10.12.12",
-    "@types/sinon": "5.0.7",
+    "@types/node": "10.12.17",
+    "@types/sinon": "7.0.0",
     "mocha": "5.2.0",
     "rimraf": "2.6.2",
-    "sinon": "7.1.1",
+    "sinon": "7.2.2",
     "source-map-support": "0.5.9",
-    "tslint": "5.11.0",
-    "typescript": "3.2.1"
+    "tslint": "5.12.0",
+    "typescript": "3.2.2"
   },
   "author": "Dynatrace",
   "license": "Apache-2.0"
