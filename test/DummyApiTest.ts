@@ -124,7 +124,7 @@ describe("Dummy", () => {
 	it("Api count", () => {
 		// verify the number of exported APIs. Mainly to get a hint to add tests...
 		const apis = Object.getOwnPropertyNames(Api);
-		Assert.strictEqual(apis.length, 7);
+		Assert.strictEqual(apis.length, 9);
 	});
 
 	// ========================================================================
@@ -160,6 +160,33 @@ describe("Dummy", () => {
 		const tracer = Api.traceIncomingRemoteCall({} as Sdk.IncomingRemoteCallStartData);
 		assertStart(tracer);
 		const rc = tracer.error(new Error("test"));
+		Assert.strictEqual(rc, tracer);
+		tracer.end();
+	});
+
+	// ========================================================================
+	it("OutgoingMessageing", () => {
+		const tracer = Api.traceOutgoingMessage({} as Sdk.OutgoingMessageStartData);
+		assertStart(tracer);
+		assertTaggableOutgoing(tracer);
+		let rc = tracer.setVendorMessageId("");
+		Assert.strictEqual(rc, tracer);
+		rc = tracer.setCorrelationId("");
+		Assert.strictEqual(rc, tracer);
+		rc = tracer.error(new Error("test"));
+		Assert.strictEqual(rc, tracer);
+		assertOutgoingEnd(tracer);
+	});
+
+	// ========================================================================
+	it("IncomingMessage", () => {
+		const tracer = Api.traceIncomingMessage({} as Sdk.IncomingMessageStartData);
+		assertStart(tracer);
+		let rc = tracer.setVendorMessageId("");
+		Assert.strictEqual(rc, tracer);
+		rc = tracer.setCorrelationId("");
+		Assert.strictEqual(rc, tracer);
+		rc = tracer.error(new Error("test"));
 		Assert.strictEqual(rc, tracer);
 		tracer.end();
 	});

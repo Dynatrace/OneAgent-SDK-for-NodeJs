@@ -6,6 +6,8 @@ Sample applications showing how to use Dynatrace OneAgent SDK for Node.js to cre
 
 - `Database`: Shows use of SDK APIs for database requests
 - `RemoteCall`: Shows use of SDK APIs for remote calls (incoming and outgoing)
+- `Messaging`: Shows use of SDK APIs for messaging (incoming and outgoing)
+- `CustomRequestAttributes`: Shows use of SDK APIs to set custom request attributes
 
 ## Prepare running sample applications
 
@@ -28,6 +30,13 @@ This sample shows how to trace an outgoing and incoming remote call and how to a
 In OutgoingRemoteCallSample.js a child process is spawened (executing IncomingRemoteCallSample.js) and these two processes communicate via Node.Js built in child process IPC.
 
 Execute the sample via `npm run remotecall` or `node RemoteCall/OutgoingRemoteCallSample` in folder samples.
+Check your Dynatrace environment for newly created services.
+
+## Messaging sample application
+
+This sample shows how to trace outgoing and incoming messaging and how to add a dynatrace trace tag to get linked service calls.
+
+Execute the sample via `npm run messaging` or `node Messaging/MessagingSample` in folder samples.
 Check your Dynatrace environment for newly created services.
 
 ## CustomRequestAttributes sample application

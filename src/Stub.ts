@@ -20,7 +20,7 @@ import * as Sdk from "./Sdk";
 
 const useNewBufferApi =  typeof(Buffer.alloc) === "function";
 
-function BufferFrom(str: string, encoding?: string): Buffer {
+function BufferFrom(str: string, encoding?: BufferEncoding): Buffer {
 	// tslint:disable-next-line:deprecation
 	return useNewBufferApi ? Buffer.from(str, encoding) : new Buffer(str, encoding);
 }
@@ -82,6 +82,26 @@ class DummyDatabaseRequestTracer extends DummyOutgoingTracer implements Sdk.Data
 	}
 }
 
+class DummyOutgoingMessageTracer extends DummyOutgoingTaggableTracer implements Sdk.OutgoingMessageTracer {
+	public setVendorMessageId(): this {
+		return this;
+	}
+
+	public setCorrelationId(): this {
+		return this;
+	}
+}
+
+class DummyIncomingMessageTracer extends DummyIncomingTracer implements Sdk.IncomingMessageTracer {
+	public setVendorMessageId(): this {
+		return this;
+	}
+
+	public setCorrelationId(): this {
+		return this;
+	}
+}
+
 // ----------------------------------------------------------------------------
 // tslint:disable-next-line:ban-types
 function dummyPassContext<T extends Function>(func: T): T {
@@ -98,6 +118,14 @@ function dummyTraceIncomingRemoteCall(): Sdk.IncomingRemoteCallTracer {
 
 function dummyTraceOutgoingRemoteCall(): Sdk.OutgoingRemoteCallTracer {
 	return new DummyOutgoingTaggableTracer();
+}
+
+function dummyTraceOutgoingMessage(): Sdk.OutgoingMessageTracer {
+	return new DummyOutgoingMessageTracer();
+}
+
+function dummyTraceIncomingMessage(): Sdk.IncomingMessageTracer {
+	return new DummyIncomingMessageTracer();
 }
 
 function dummyAddCustomRequestAttribute(): void {
@@ -122,6 +150,10 @@ export function getDummySdk(): Sdk.OneAgentSDK {
 		traceIncomingRemoteCall: dummyTraceIncomingRemoteCall,
 
 		traceOutgoingRemoteCall: dummyTraceOutgoingRemoteCall,
+
+		traceOutgoingMessage: dummyTraceOutgoingMessage,
+
+		traceIncomingMessage: dummyTraceIncomingMessage,
 
 		addCustomRequestAttribute: dummyAddCustomRequestAttribute,
 

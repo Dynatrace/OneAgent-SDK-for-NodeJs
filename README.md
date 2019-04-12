@@ -18,14 +18,17 @@ This is the official Node.js implementation of the [Dynatrace OneAgent SDK](http
   * [Tracers](#tracers)
 * [Features](#features)
   * [Trace incoming and outgoing remote calls](#trace-incoming-and-outgoing-remote-calls)
+  * [Trace messaging](#trace-messaging)
   * [Trace SQL database requests](#trace-sql-database-requests)
   * [Set custom request attributes](#set-custom-request-attributes)
 * [Administrative Apis](#administrative-apis)
   * [Current SDK state](#current-sdk-state)
   * [Set callbacks for logging](#set-callbacks-for-logging)
 * [Constants](#constants)
-  * [Channel Type](#channel-type)
-  * [Database vendors](#database-vendors)
+  * [Channel type](#channel-type)
+  * [Database vendors](#database-vendors)  
+  * [Message destination type](#message-destination-type)
+  * [Message system vendors](#message-system-vendors)
 * [Pass Context](#pass-context)
 * [Further reading](#further-readings)
 * [Help & Support](#help-support)
@@ -45,6 +48,7 @@ This is the official Node.js implementation of the [Dynatrace OneAgent SDK](http
 
 |OneAgent SDK for Node.js|Required OneAgent version|
 |:-----------------------|:------------------------|
+|1.3.x                   |>=1.165                  |
 |1.2.x                   |>=1.145                  |
 |1.1.x                   |>=1.143                  |
 |1.0.x                   |>=1.137                  |
@@ -128,6 +132,7 @@ A more detailed specification of the features can be found in [Dynatrace OneAgen
 |Trace SQL database requests              |>=1.0.1                                  |
 |Set result data on SQL database requests |>=1.1.0                                  |
 |Set custom request attributes            |>=1.2.0                                  |
+|Trace Messaging                          |>=1.3.0                                  |
 
 ### Trace incoming and outgoing remote calls
 
@@ -222,6 +227,99 @@ async function tracedMessageHandler(message) {
     // set error and end tracer
     tracer.error(e).end();
   }
+}
+```
+
+### Trace Messaging
+
+#### Trace outgoing messages
+
+An outgoing message is traced by calling `traceOutgoingMessage()` passing an object with following properties:
+
+* `vendorName` Mandatory - a string holding the messaging system vendor name (e.g. RabbitMq, Apache Kafka, ...), can be a user defined name. If possible use a constant defined in [MessageSystemVendor](#message-system-vendors).
+* `destinationName` Mandatory - a string holding the destination name (e.g. queue name, topic name).
+* `destinationType` Mandatory - specifies the type of the destination. Valid values are available via [MessageDestinationType](#message-destination-type)
+
+Additionally it holds following properties describing the connection to the messaging service. Depending on the connection type the corresponding property/properties shall be set.
+If the specific information like host/socketPath/... is not available, the property `channelType` shall be set.
+
+* `host` A string specifying the hostname/IP of the server side in case of a TCP/IP connection is used (note that OneAgent may try to resolve the hostname)
+* `port` The TCP/IP port (optional)
+* `socketPath` A string specifying the UNIX domain socket file
+* `pipeName` A string specifying the name of the Pipe
+* `channelType` Specifies the protocol used as communication channel (e.g. TCP/IP, IN_PROCESS,... ). Valid values are available via [ChannelType](#channel-type))
+
+The result of `traceOutgoingMessage()` is a tracer object to be used for further operations related to this trace (see [Tracers](#tracers) for details).
+As an outgoing message is _taggable_ a Dynatrace tag shall be created from tracer after it has been started and embedded to the message content.
+
+Besides the common APIs for outgoing tracers this tracer offers the additional methods `setVendorMessageId()` and `setCorrelationId()` which may be used to set more details about the message sent. Both APIs receive a `string` as parameter to pass the `correlationId` or `vendorMessageId` provided by messaging system.
+
+**Example (see [MessagingSample.js](samples/Messaging/MessagingSample.js) for more details):**
+
+```js
+function traceOutgoingMessage(name, data, corrId) {
+  // create a tracer instance and start the trace
+  const tracer = Api.traceOutgoingMessage(systemInfo);
+  tracer.start(function sendTaggedMessage() {
+    // getting a tag from tracer needs to be done after start()
+    const dtTag = tracer.getDynatraceStringTag();
+    try {
+      // now trigger the actual sending of the message
+      const messageId = sendMessage(name, data, corrId, dtTag);
+
+      // optional: set correlationId/vendorMessageId if present/relevant
+      tracer.setCorrelationId(corrId).setVendorMessageId(`${messageId}`);
+    } catch (e) {
+      tracer.error(e);
+      throw e;
+    } finally {
+      tracer.end();
+    }
+  });
+}
+```
+
+#### Trace incoming messages
+
+An incoming message is traced by calling `traceIncomingMessage()` passing an object with following properties:
+
+* `vendorName` Mandatory - a string holding the messaging system vendor name (e.g. RabbitMq, Apache Kafka, ...), can be a user defined name. If possible use a constant defined in [MessageSystemVendor](#message-system-vendors).
+* `destinationName` Mandatory - a string holding the destination name (e.g. queue name, topic name).
+* `destinationType` Mandatory - specifies the type of the destination. Valid values are available via [MessageDestinationType](#message-destination-type)
+* `dynatraceTag` - a string or Buffer holding the received Dynatrace tag received
+
+Additionally it holds following properties describing the connection to the messaging service. Depending on the connection type the corresponding property/properties shall be set.
+If the specific information like host/socketPath/... is not available, the property `channelType` shall be set.
+
+* `host` A string specifying the hostname/IP of the server side in case of a TCP/IP connection is used (note that OneAgent may try to resolve the hostname)
+* `port` The TCP/IP port (optional)
+* `socketPath` A string specifying the UNIX domain socket file
+* `pipeName` A string specifying the name of the Pipe
+* `channelType` Specifies the protocol used as communication channel (e.g. TCP/IP, IN_PROCESS,... ). Valid values are available via [ChannelType](#channel-type))
+
+The result of `traceIncomingMessage()` is a tracer object to be used for further operations related to this trace (see [Tracers](#tracers) for details).
+
+Besides the common APIs for outgoing tracers this tracer offers the additional methods `setVendorMessageId()` and `setCorrelationId()` which may be used to set more details about the message sent. Both APIs receive a `string` as parameter to pass the `correlationId` or `vendorMessageId` provided by messaging system.
+
+**Example (see [MessagingSample.js](samples/Messaging/MessagingSample.js) for more details):**
+
+```js
+function traceIncomingMessage(msg) {
+  // create a tracer instance and start the trace, ensure dynatraceTag is set
+  const startData = Object.assign({ dynatraceTag: msg.meta.dtTag }, systemInfo);
+  const tracer = Api.traceIncomingMessage(startData);
+  tracer.start(function processMessage(done) {
+    // optional: set correlationId/vendorMessageId if present/relevant
+    tracer.setCorrelationId(msg.meta.corrId).setVendorMessageId(`${msg.meta.msgId}`);
+
+    // do whatever needed with the message, simulated via nextTick() here
+    process.nextTick(done);
+  }, function onDone(err) {
+    if (err) {
+      tracer.error();
+    }
+    tracer.end();
+  });
 }
 ```
 
@@ -338,7 +436,7 @@ Api.setLoggingCallbacks({
 
 ### Constants
 
-#### Channel Type
+#### Channel type
 
 The values of constant `ChannelType` specify the type of the transport channel used. Following values are provided:
 
@@ -388,6 +486,27 @@ The values of constant `DatabaseVendor` may be used as input for `traceSQLDataba
 * `COLDFUSION_IMQ`
 * `REDSHIFT`
 * `COUCHBASE`
+
+#### Message destination type
+
+The values of constant `MessageDestinationType` specify the type of the message destination used. Following values are provided:
+
+* `QUEUE`
+* `TOPIC`
+
+#### Message system vendors
+
+The values of constant `MessageSystemVendor` may be used as input for `traceIncomingMessage()` and `traceOutgoingMessage()`. Using these constants ensures that services captured by OneAgentSDK are handled the same way as traced via built-in sensors. Following values are provided:
+
+* `HORNETQ`
+* `ACTIVE_MQ`
+* `RABBIT_MQ`
+* `ARTEMIS`
+* `WEBSPHERE`
+* `MQSERIES_JMS`
+* `MQSERIES`
+* `TIBCO`
+* `KAFKA`
 
 ### Pass Context
 
@@ -487,6 +606,7 @@ see also [Releases](https://github.com/Dynatrace/OneAgent-SDK-for-NodeJs/release
 
 |Version|Description                                 |
 |:------|:-------------------------------------------|
+|1.3.0  |add support to trace messaging              |
 |1.2.2  |don't swallow exceptions                    |
 |1.2.1  |improve type definitions                    |
 |1.2.0  |add support for custom request attributes   |

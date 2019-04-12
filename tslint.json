@@ -78,7 +78,8 @@
 	"jsRules": {
 		"indent": [
 			true,
-			"tabs"
+			"spaces",
+			2
 		],
 		"max-line-length": [
 			true,

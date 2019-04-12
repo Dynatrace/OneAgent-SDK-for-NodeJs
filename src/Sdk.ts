@@ -16,8 +16,11 @@
 
 import { getDummySdk } from "./Stub";
 
-import * as Vendors from "./DatabaseVendors";
-export { Vendors as DatabaseVendor };
+import * as DbVendors from "./DatabaseVendors";
+import * as MessageSystemVendors from "./MessageSystemVendors";
+
+export { DbVendors as DatabaseVendor };
+export { MessageSystemVendors as MessageSystemVendor };
 
 
 // ============================================================================
@@ -34,17 +37,13 @@ declare const __DT_GETAGENTAPI__: GetAgentApi | undefined;
  * Defines the state, in which the SDK can be.
  */
 export const enum SDKState {
-	/** SDK is connected to OneAgent and capturing data. */
+	/// SDK is connected to OneAgent and capturing data.
 	ACTIVE,
 
-	/**
-	 * SDK is connected to OneAgent, but capturing is disabled. It is good practice to skip creating SDK transactions to save resources.
-	 */
+	/// SDK is connected to OneAgent, but capturing is disabled. It is good practice to skip creating SDK transactions to save resources.
 	TEMPORARILY_INACTIVE,
 
-	/**
-	 * SDK isn't connected to OneAgent, so it will never capture data.
-	 */
+	/// SDK isn't connected to OneAgent, so it will never capture data.
 	PERMANENTLY_INACTIVE
 }
 
@@ -64,7 +63,7 @@ export const enum ChannelType {
 	/// Name Pipe
 	NAMED_PIPE,
 
-	/// Communication is in process (e.a. using files,..)
+	/// Communication is in process (e.g. using files,..)
 	IN_PROCESS
 }
 
@@ -262,7 +261,7 @@ export interface DatabaseInfoCommon extends ConnectionInfo {
 	/// The name of the database
 	name: string;
 
-	/// The database vendor name (e.a. Oracle, MySQL, ...) can be an user defined name. If possible use a constant defined in DatabaseVendor.
+	/// The database vendor name (e.g. Oracle, MySQL, ...) can be an user defined name. If possible use a constant defined in DatabaseVendor.
 	vendor: string;
 }
 
@@ -392,6 +391,102 @@ export type OutgoingRemoteCallStartData = OutgoingRemoteCallStartDataTcp | Outgo
 export interface OutgoingRemoteCallTracer extends OutgoingTaggable, OutgoingTracer {
 }
 
+// ============================================================================
+
+// Types for Messaging
+
+/**
+ * Defines the destination type of a message.
+ */
+export const enum MessageDestinationType {
+	QUEUE,
+
+	TOPIC
+}
+
+export interface MessagingSystemInfoCommon extends ConnectionInfo {
+	/// The message system vendor name (e.g. RabbitMq, Apache Kafka, ...) can be an user defined name. If possible use a constant defined in MessageSystemVendor.
+	vendorName: string;
+
+	/// destination name (e.g. queue name, topic name)
+	destinationName: string;
+
+	/// destination type: 'Topic' or 'Queue'
+	destinationType: MessageDestinationType;
+}
+
+export interface IncomingMessageStartDataCommon extends MessagingSystemInfoCommon, IncomingTaggable {
+}
+
+export interface IncomingMessageStartDataTcp extends IncomingMessageStartDataCommon {
+	host: string;
+	port?: number;
+}
+
+export interface IncomingMessageStartDataSocket extends IncomingMessageStartDataCommon {
+	socketPath: string;
+}
+
+export interface IncomingMessageStartDataPipe extends IncomingMessageStartDataCommon {
+	pipeName: string;
+}
+
+export interface IncomingMessageStartDataChannelType extends IncomingMessageStartDataCommon {
+	channelType: ChannelType;
+}
+
+export type IncomingMessageStartData = IncomingMessageStartDataTcp | IncomingMessageStartDataSocket | IncomingMessageStartDataPipe | IncomingMessageStartDataChannelType;
+
+
+export interface OutgoingMessageStartDataCommon extends MessagingSystemInfoCommon {
+}
+export interface OutgoingMessageStartDataTcp extends OutgoingMessageStartDataCommon {
+	host: string;
+	port?: number;
+}
+
+export interface OutgoingMessageStartDataDomainSocket extends MessagingSystemInfoCommon {
+	socketPath: string;
+}
+
+export interface OutgoingMessageStartDataPipe extends MessagingSystemInfoCommon {
+	pipeName: string;
+}
+
+export interface OutgoingMessageStartDataChannelType extends MessagingSystemInfoCommon {
+	channelType: ChannelType;
+}
+
+export type OutgoingMessageStartData = OutgoingMessageStartDataTcp | OutgoingMessageStartDataDomainSocket |OutgoingMessageStartDataPipe | OutgoingMessageStartDataChannelType;
+
+
+export interface MessageTracerCommon {
+	/**
+	 * Adds optional information about a traced message: message id provided by messaging system.
+	 * @param vendorMessageId the messageId
+	 */
+	setVendorMessageId(vendorMessageId: string): this;
+
+	/**
+	 * Adds optional information about a traced message: correlation id used by messaging system.
+	 * @param correlationId correlationId
+	 */
+	setCorrelationId(correlationId: string): this;
+}
+
+/**
+ * Tracer for an outgoing message.
+ * Created by {@link traceOutgoingMessage}
+ */
+export interface OutgoingMessageTracer extends OutgoingTaggable, OutgoingTracer, MessageTracerCommon {
+}
+
+/**
+ * Tracer for processing an incoming message.
+ * Created by {@link traceIncomingMessage}
+ */
+export interface IncomingMessageTracer extends IncomingTaggable, IncomingTracer, MessageTracerCommon {
+}
 
 // ============================================================================
 
@@ -430,6 +525,21 @@ export interface OneAgentSDK {
 	 */
 	traceOutgoingRemoteCall(startData: OutgoingRemoteCallStartData): OutgoingRemoteCallTracer;
 
+	/**
+	 * Creates a tracer for processing (consuming) a received message (onMessage).
+	 * @param startData Specifies details about the request
+	 * @return {@link IncomingMessageTracer} to work with
+	 */
+	traceIncomingMessage(startData: IncomingMessageStartData): IncomingMessageTracer;
+
+	/**
+	 * Creates a tracer for an outgoing asynchronous message (send).
+	 *
+	 * @param startData Specifies details about the request
+	 * @return {@link OutgoingMessageTracer} to work with
+	 */
+	traceOutgoingMessage(startData: OutgoingMessageStartData): OutgoingMessageTracer;
+
 	// ***** Custom request attributes *****
 	/**
 	 * Adds a custom request attribute to currently traced service call. Might be called multiple times, to add more than one attribute.
@@ -465,7 +575,7 @@ export interface OneAgentSDK {
  */
 export function createInstance(): OneAgentSDK {
 	if (typeof __DT_GETAGENTAPI__ === "function") {
-		return  __DT_GETAGENTAPI__(6) || getDummySdk();
+		return  __DT_GETAGENTAPI__(7) || getDummySdk();
 	}
 
 	return getDummySdk();

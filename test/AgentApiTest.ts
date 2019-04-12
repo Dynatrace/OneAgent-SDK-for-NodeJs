@@ -41,7 +41,7 @@ describe("Sdk with agent", () => {
 		const sdkApi = Sdk.createInstance();
 		Assert.strictEqual(typeof sdkApi, "object");
 		Sinon.assert.callCount(getSdkStub, 1);
-		Sinon.assert.alwaysCalledWith(getSdkStub, 6);
+		Sinon.assert.alwaysCalledWith(getSdkStub, 7);
 		Assert.strictEqual(sdkApi.getCurrentState(), Sdk.SDKState.PERMANENTLY_INACTIVE);
 	});
 
@@ -57,7 +57,7 @@ describe("Sdk with agent", () => {
 		const sdkApi = Sdk.createInstance();
 		Assert.strictEqual(sdkApi, agentSdk);
 		Sinon.assert.callCount(getSdkStub, 1);
-		Sinon.assert.alwaysCalledWith(getSdkStub, 6);
+		Sinon.assert.alwaysCalledWith(getSdkStub, 7);
 		Assert.strictEqual(sdkApi.getCurrentState(), Sdk.SDKState.ACTIVE);
 	});
 
@@ -81,6 +81,18 @@ describe("Sdk with agent", () => {
 			Assert.strictEqual(typeof SdkAsAny.DatabaseVendor, "object");
 			Assert.strictEqual(typeof Sdk.DatabaseVendor.APACHE_HIVE, "string");
 			Assert.strictEqual(Sdk.DatabaseVendor.REDSHIFT, "Amazon Redshift");
+		});
+
+		it("MessageSystemVendor", () => {
+			Assert.strictEqual(typeof SdkAsAny.MessageSystemVendor, "object");
+			Assert.strictEqual(typeof Sdk.MessageSystemVendor.KAFKA, "string");
+			Assert.strictEqual(Sdk.MessageSystemVendor.HORNETQ, "HornetQ");
+		});
+
+		it("MessageDestinationType", () => {
+			Assert.strictEqual(typeof SdkAsAny.MessageDestinationType, "object");
+			Assert.strictEqual(typeof Sdk.MessageDestinationType.QUEUE, "number");
+			Assert.strictEqual(Sdk.MessageDestinationType.TOPIC, 1);
 		});
 	});
 });
