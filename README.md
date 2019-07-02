@@ -1,5 +1,3 @@
-**Disclaimer: This SDK is currently in beta and still work in progress.**
-
 # Dynatrace OneAgent SDK for Node.js
 
 This SDK allows Dynatrace customers to instrument Node.js applications. This is useful to add service level insight for modules currently not directly supported by [Dynatrace OneAgent](https://www.dynatrace.com/technologies/nodejs-monitoring/) out-of-the-box.
@@ -578,7 +576,7 @@ function doSomething() {
 
 ## Help & Support
 
-The Dynatrace OneAgent SDK for Node.js is an open source project, currently in beta status. The features are fully supported by Dynatrace.
+The Dynatrace OneAgent SDK for Node.js is fully supported by Dynatrace.
 
 ### Get Help
 
