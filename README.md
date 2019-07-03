@@ -44,12 +44,12 @@ This is the official Node.js implementation of the [Dynatrace OneAgent SDK](http
 * When loading the OneAgent via [OneAgent NPM module](https://www.npmjs.com/package/@dynatrace/oneagent) or a similar tool, make sure to require the SDK after the OneAgent
 * Dynatrace OneAgent (required versions see below)
 
-|OneAgent SDK for Node.js|Required OneAgent version|
-|:-----------------------|:------------------------|
-|1.3.x                   |>=1.165                  |
-|1.2.x                   |>=1.145                  |
-|1.1.x                   |>=1.143                  |
-|1.0.x                   |>=1.137                  |
+|OneAgent SDK for Node.js|Required OneAgent version|Support status|
+|:-----------------------|:------------------------|:-------------|
+|1.3.x                   |>=1.165                  |Supported     |
+|1.2.x                   |>=1.145                  |Supported     |
+|1.1.x                   |>=1.143                  |Supported     |
+|1.0.x                   |>=1.137                  |Supported     |
 
 ## Integration
 
@@ -576,7 +576,11 @@ function doSomething() {
 
 ## Help & Support
 
-The Dynatrace OneAgent SDK for Node.js is fully supported by Dynatrace.
+**Support policy**
+
+The Dynatrace OneAgent SDK for Node.js has GA status. The features are fully supported by Dynatrace.
+
+For detailed support policy see [Dynatrace OneAgent SDK help](https://github.com/Dynatrace/OneAgent-SDK#help).
 
 ### Get Help
 
