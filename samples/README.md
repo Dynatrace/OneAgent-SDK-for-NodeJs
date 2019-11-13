@@ -8,6 +8,7 @@ Sample applications showing how to use Dynatrace OneAgent SDK for Node.js to cre
 - `RemoteCall`: Shows use of SDK APIs for remote calls (incoming and outgoing)
 - `Messaging`: Shows use of SDK APIs for messaging (incoming and outgoing)
 - `CustomRequestAttributes`: Shows use of SDK APIs to set custom request attributes
+- `Metrics`: Shows use of SDK APIs for metrics reporting
 
 ## Prepare running sample applications
 
@@ -46,3 +47,10 @@ The OneAgent will create a trace for the incoming web request and client code ca
 
 Execute the sample via `npm run customrequestattribute` or `node CustomRequestAttributes/CustomRequestAttributesSample.js` in folder samples.
 Check your Dynatrace environment for newly created services.
+
+## Metrics sample application
+
+This sample shows how to report metrics.
+
+Execute the sample via `npm run metrics` or `node Metrics/MetricsSample.js` in folder samples.
+Check your Dynatrace environment for newly reported metrics.

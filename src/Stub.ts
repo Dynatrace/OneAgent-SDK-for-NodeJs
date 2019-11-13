@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Dynatrace LLC
+    Copyright 2019 Dynatrace LLC
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -102,12 +102,33 @@ class DummyIncomingMessageTracer extends DummyIncomingTracer implements Sdk.Inco
 	}
 }
 
+
+// ----------------------------------------------------------------------------
+class DummyCounter implements Sdk.CounterMetricDimensionLess, Sdk.CounterMetricWithDimension {
+	public increaseBy(): void {
+		// empty
+	}
+}
+
+class DummyGauge implements Sdk.GaugeMetricDimensionLess, Sdk.GaugeMetricWithDimension {
+	public setValue(): void {
+		// empty
+	}
+}
+
+class DummyStatistics implements Sdk.StatisticsMetricDimensionLess, Sdk.StatisticsMetricWithDimension {
+	public addValue(): void {
+		// empty
+	}
+}
+
 // ----------------------------------------------------------------------------
 // tslint:disable-next-line:ban-types
 function dummyPassContext<T extends Function>(func: T): T {
 	return func;
 }
 
+// ----------------------------------------------------------------------------
 function dummyTraceSQLDatabaseRequest(): Sdk.DatabaseRequestTracer {
 	return new DummyDatabaseRequestTracer();
 }
@@ -132,6 +153,33 @@ function dummyAddCustomRequestAttribute(): void {
 	// intentionally empty
 }
 
+// ----------------------------------------------------------------------------
+function dummyCreateIntegerCounterMetric(): Sdk.CounterMetricDimensionLess {
+	return new DummyCounter();
+}
+
+function dummyCreateFloatCounterMetric(): Sdk.CounterMetricDimensionLess {
+	return new DummyCounter();
+}
+
+function dummyCreateIntegerGaugeMetric(): Sdk.GaugeMetricDimensionLess {
+	return new DummyGauge();
+}
+
+function dummyCreateFloatGaugeMetric(): Sdk.GaugeMetricDimensionLess {
+	return new DummyGauge();
+}
+
+function dummyCreateIntegerStatisticsMetric(): Sdk.StatisticsMetricDimensionLess {
+	return new DummyStatistics();
+}
+
+function dummyCreateFloatStatisticsMetric(): Sdk.StatisticsMetricDimensionLess {
+	return new DummyStatistics();
+}
+
+
+// ----------------------------------------------------------------------------
 function dummyGetCurrentState(): Sdk.SDKState {
 	return Sdk.SDKState.PERMANENTLY_INACTIVE;
 }
@@ -140,7 +188,7 @@ function dummySetLoggingCallback(): void {
 	// intentionally empty
 }
 
-// ----------------------------------------------------------------------------
+// ============================================================================
 export function getDummySdk(): Sdk.OneAgentSDK {
 	return {
 		passContext: dummyPassContext,
@@ -156,6 +204,13 @@ export function getDummySdk(): Sdk.OneAgentSDK {
 		traceIncomingMessage: dummyTraceIncomingMessage,
 
 		addCustomRequestAttribute: dummyAddCustomRequestAttribute,
+
+		createIntegerCounterMetric: dummyCreateIntegerCounterMetric,
+		createFloatCounterMetric: dummyCreateFloatCounterMetric,
+		createIntegerGaugeMetric: dummyCreateIntegerGaugeMetric,
+		createFloatGaugeMetric: dummyCreateFloatGaugeMetric,
+		createIntegerStatisticsMetric: dummyCreateIntegerStatisticsMetric,
+		createFloatStatisticsMetric: dummyCreateFloatStatisticsMetric,
 
 		getCurrentState: dummyGetCurrentState,
 

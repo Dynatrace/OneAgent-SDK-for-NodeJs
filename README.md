@@ -19,6 +19,7 @@ This is the official Node.js implementation of the [Dynatrace OneAgent SDK](http
   * [Trace messaging](#trace-messaging)
   * [Trace SQL database requests](#trace-sql-database-requests)
   * [Set custom request attributes](#set-custom-request-attributes)
+  * [Metrics](#metrics)
 * [Administrative Apis](#administrative-apis)
   * [Current SDK state](#current-sdk-state)
   * [Set callbacks for logging](#set-callbacks-for-logging)
@@ -46,6 +47,7 @@ This is the official Node.js implementation of the [Dynatrace OneAgent SDK](http
 
 |OneAgent SDK for Node.js|Required OneAgent version|Support status|
 |:-----------------------|:------------------------|:-------------|
+|1.4.x                   |>=1.179                  |Supported     |
 |1.3.x                   |>=1.165                  |Supported     |
 |1.2.x                   |>=1.145                  |Supported     |
 |1.1.x                   |>=1.143                  |Supported     |
@@ -131,6 +133,7 @@ A more detailed specification of the features can be found in [Dynatrace OneAgen
 |Set result data on SQL database requests |>=1.1.0                                  |
 |Set custom request attributes            |>=1.2.0                                  |
 |Trace Messaging                          |>=1.3.0                                  |
+|Metrics (preview only)                   |>=1.4.0                                  |
 
 ### Trace incoming and outgoing remote calls
 
@@ -297,7 +300,7 @@ If the specific information like host/socketPath/... is not available, the prope
 
 The result of `traceIncomingMessage()` is a tracer object to be used for further operations related to this trace (see [Tracers](#tracers) for details).
 
-Besides the common APIs for outgoing tracers this tracer offers the additional methods `setVendorMessageId()` and `setCorrelationId()` which may be used to set more details about the message sent. Both APIs receive a `string` as parameter to pass the `correlationId` or `vendorMessageId` provided by messaging system.
+Besides the common APIs for incoming tracers this tracer offers the additional methods `setVendorMessageId()` and `setCorrelationId()` which may be used to set more details about the message sent. Both APIs receive a `string` as parameter to pass the `correlationId` or `vendorMessageId` provided by messaging system.
 
 **Example (see [MessagingSample.js](samples/Messaging/MessagingSample.js) for more details):**
 
@@ -404,6 +407,55 @@ a trace created by built in sensors of OneAgent. The API may be called several t
 ```js
 Api.addCustomRequestAttribute("fooAttribute", "bar");
 Api.addCustomRequestAttribute("barAttribute", 15.34);
+```
+
+### Metrics
+
+**The metrics API is currently part of a preview program and will not work for users outside of the preview program. Visit [Dynatrace Help](https://www.dynatrace.com/support/help/whats-new/preview-and-early-adopter-releases/) for details.**
+
+The SDK supports two **metric value types**: `Integer` and `Float` (double precision floating point).
+You should prefer integer metrics as they are more efficient, unless the loss of precision is unacceptable (but
+consider using a different unit, e.g. integer microseconds instead of floating point seconds).
+
+There are these different **kinds of metrics**:
+
+* **Counter**: For all metrics that are counting something like sent/received bytes to/from network.
+Counters should only be used when tracking things in flow, as opposed to state. It reports the `sum`
+only and is the most lightweight metric kind.
+* **Gauge**: For metrics that periodically sample a current state, e.g. temperatures, total number
+of bytes stored on a disk. Gauges report a `min`, `max` and `average` value (but no `sum`).
+* **Statistics**: For event-driven metrics like the packet size of a network interface. The most
+heavyweight metric. Reports `min`, `max`, `average` and `count`.
+
+Each combination of metric value type and kind has its own create-function, named `create<ValueType><MetricKind>Metric`.
+
+When creating a metric following information needs to be provided:
+
+* `metricName` Mandatory - a string identifying the metric. Maximum size is 100 bytes.
+Although it is not recommended, you may create multiple metric instances with the same name, as long as you use the same creation function (metric value type and kind are the same) and the same options.
+Otherwise, using the same metric name multiple times is an error. All metrics with the same name will be aggregated together as if you used only one metric instance.
+
+* `MetricOptions` Optional - an `object` with following properties:
+  * `unit` Optional - a string that will be displayed when browsing for metrics in the Dynatrace UI.
+  * `dimensionName` Optional - a `string` specifying the name of the dimension added to the metric.
+  If a name is given here it's required to set a dimension value during booking samples on the metric. A dimension is like an additional label attached to values, for example a "disk.written.bytes" metric could have a dimension name of "disk-id" and when adding values to it a dimension value would be "/dev/sda1".
+
+**Example (see [MetricsSample.js](samples/Metrics/MetricsSample.js) for more details):**
+
+```js
+// create some metrics
+const intCounter = Api.createIntegerCounterMetric("aIntCounter");
+const floatGauge = Api.createFloatGaugeMetric("aFloatGauge", { dimensionName: "aDimName"} );
+const intStatistics = Api.createIntegerStatisticsMetric("aIntStat", { unit: "aUnit"} );
+
+// report some values
+setInterval(() => {
+  intCounter.increaseBy(10 * Math.random());
+  floatGauge.setValue(10 * Math.random(), "firstDim");
+  floatGauge.setValue(10 * Math.random(), "secondDim");
+  intStatistics.addValue(10 * Math.random());
+}, 800);
+
 ```
 
 ### Administrative Apis
@@ -608,6 +660,7 @@ see also [Releases](https://github.com/Dynatrace/OneAgent-SDK-for-NodeJs/release
 
 |Version|Description                                 |
 |:------|:-------------------------------------------|
+|1.4.0  |add support for metrics (preview only)      |
 |1.3.0  |add support to trace messaging              |
 |1.2.2  |don't swallow exceptions                    |
 |1.2.1  |improve type definitions                    |
