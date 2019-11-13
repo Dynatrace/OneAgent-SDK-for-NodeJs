@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Dynatrace LLC
+    Copyright 2019 Dynatrace LLC
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -124,7 +124,7 @@ describe("Dummy", () => {
 	it("Api count", () => {
 		// verify the number of exported APIs. Mainly to get a hint to add tests...
 		const apis = Object.getOwnPropertyNames(Api);
-		Assert.strictEqual(apis.length, 9);
+		Assert.strictEqual(apis.length, 15);
 	});
 
 	// ========================================================================
@@ -194,6 +194,45 @@ describe("Dummy", () => {
 	// ========================================================================
 	it("addCustomRequestAttribute", () => {
 		Api.addCustomRequestAttribute("key", "value");
+	});
+
+	// ========================================================================
+	describe("Metrics", () => {
+		it("createIntegerCounterMetric", () => {
+			const metric = Api.createIntegerCounterMetric("key");
+			Assert.strictEqual(typeof(metric), "object");
+			metric.increaseBy(10);
+		});
+
+		it("createFloatCounterMetric", () => {
+			const metric = Api.createFloatCounterMetric("key");
+			Assert.strictEqual(typeof(metric), "object");
+			metric.increaseBy(10);
+		});
+
+		it("createIntegerGaugeMetric", () => {
+			const metric = Api.createIntegerGaugeMetric("key");
+			Assert.strictEqual(typeof(metric), "object");
+			metric.setValue(10);
+		});
+
+		it("createFloatGaugeMetric", () => {
+			const metric = Api.createFloatGaugeMetric("key");
+			Assert.strictEqual(typeof(metric), "object");
+			metric.setValue(10);
+		});
+
+		it("createIntegerStatisticsMetric", () => {
+			const metric = Api.createIntegerStatisticsMetric("key");
+			Assert.strictEqual(typeof(metric), "object");
+			metric.addValue(10);
+		});
+
+		it("createFloatStatisticsMetric", () => {
+			const metric = Api.createFloatStatisticsMetric("key");
+			Assert.strictEqual(typeof(metric), "object");
+			metric.addValue(10);
+		});
 	});
 
 	// ========================================================================

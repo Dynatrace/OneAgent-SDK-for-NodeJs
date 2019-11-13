@@ -24,28 +24,26 @@ const Api = Sdk.createInstance();
 
 // ----------------------------------------------------------------------------
 if (Api.getCurrentState() !== Sdk.SDKState.ACTIVE) {
-  console.error("CustomRequestAttributesSample: SDK is not active!");
+  console.error("MetricsSample: SDK is not active!");
 }
 
 // install logging callbacks
 Api.setLoggingCallbacks({
-  warning: (msg) => console.error("CustomRequestAttributesSample SDK warning: " + msg),
-  error: (msg) => console.error("CustomRequestAttributesSample SDK error: " + msg)
+  warning: (msg) => console.error("MetricsSample SDK warning: " + msg),
+  error: (msg) => console.error("MetricsSample SDK error: " + msg)
 });
 
 // ----------------------------------------------------------------------------
-const http = require("http");
 
-// ----------------------------------------------------------------------------
-const server = http.createServer(function onRequest(req, res) {
-  // set attribute named "fooAttribute" with value "bar"
-  Api.addCustomRequestAttribute("fooAttribute", "bar");
+// create some metrics
+const intCounter = Api.createIntegerCounterMetric("aIntCounter");
+const floatGauge = Api.createFloatGaugeMetric("aFloatGauge", { dimensionName: "aDimName"} );
+const intStatistics = Api.createIntegerStatisticsMetric("aIntStat", { unit: "aUnit"} );
 
-  process.nextTick(() => {
-    // setting attributes after async functions is possible as long as transactional context is found by OneAgent
-    // set attribute named "barAttribute" with value 15.34
-    Api.addCustomRequestAttribute("barAttribute", 15.34);
-
-    res.end();
-  });
-}).listen(8002).on("listening", () => setInterval(() => http.get("http://localhost:" + server.address().port), 500));
+// report some values
+setInterval(() => {
+  intCounter.increaseBy(10 * Math.random());
+  floatGauge.setValue(10 * Math.random(), "firstDim");
+  floatGauge.setValue(10 * Math.random(), "secondDim");
+  intStatistics.addValue(10 * Math.random());
+}, 800);

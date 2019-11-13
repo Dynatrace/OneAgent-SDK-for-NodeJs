@@ -1,5 +1,5 @@
 /*
-    Copyright 2018 Dynatrace LLC
+    Copyright 2019 Dynatrace LLC
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -490,6 +490,78 @@ export interface IncomingMessageTracer extends IncomingTaggable, IncomingTracer,
 
 // ============================================================================
 
+// Types for Metrics
+
+export interface MetricOptions {
+	/**
+	 * Unit of the metric. Only informational and used as label only.
+	 * Note that you must not report the same metric with different dimensions, as that would lead to incorrect aggregation.
+	 * If you cannot ensure consistent units, use a different metric key per unit, e.g. "NORMAL-METRIC-KEY.UNIT-NAME".
+	 */
+	unit?: string;
+}
+
+export interface MetricOptionsWithDimension extends MetricOptions {
+	/**
+	 * Name of dimension. Only informational and used as label only.
+	 * Must be set to non-empty string, when dimension will be reported. If no dimension will be reported dimension shall be not set.
+	 */
+	dimensionName: string;
+}
+
+export interface CounterMetricDimensionLess {
+	/**
+	 * Increase the counter by provided value.
+	 * @param value				The value to increase the metric
+	 */
+	increaseBy(value: number): void;
+}
+
+export interface CounterMetricWithDimension {
+	/**
+	 * Increase the counter by provided value.
+	 * @param value				The value to increase the metric
+	 * @param dimensionValue	Name of the concerned resource (disk name, page name, ...).
+	 */
+	increaseBy(value: number, dimensionValue: string): void;
+}
+
+export interface GaugeMetricDimensionLess {
+	/**
+	 * Set the current value.
+	 * @param value				The current value to set
+	 */
+	setValue(currentValue: number): void;
+}
+
+export interface GaugeMetricWithDimension {
+	/**
+	 * Set the current value.
+	 * @param value				The current value to set
+	 * @param dimensionValue	Name of the concerned resource (disk name, page name, ...).
+	 */
+	setValue(currentValue: number, dimensionValue: string): void;
+}
+
+export interface StatisticsMetricDimensionLess {
+	/**
+	 * Adds new value to this statistics metric.
+	 * @param value				The value to be recorded to the statistic
+	 */
+	addValue(value: number): void;
+}
+
+export interface StatisticsMetricWithDimension {
+	/**
+	 * Adds new value to this statistics metric.
+	 * @param value				The value to be recorded to the statistic
+	 * @param dimensionValue	Name of the concerned resource (disk name, page name, ...).
+	 */
+	addValue(value: number, dimensionValue?: string): void;
+}
+
+// ============================================================================
+
 /**
  * Object holding all SDK apis.
  */
@@ -551,6 +623,81 @@ export interface OneAgentSDK {
 	 */
 	addCustomRequestAttribute(key: string, value: string | number): void;
 
+
+	// ***** Metrics *****
+
+	/**
+	 * Creates an integer counter metric instance. Counters are used for all metrics, that are counting something like sent/received
+	 * bytes to/from network.
+	 *
+	 * Counter sums up provided samples and reports the sum only.
+	 *
+	 * @param metricName	Name (tenant-wide ID) of the metric. It must be ASCII-compatible, must not contain NUL characters
+	 * 						and must not be longer than 100 bytes.
+	 * @param options		optional options for the metric.
+	 * @return	The metric instance being used for reporting. Returned instances should be reused whenever possible.
+	 *			Calling this method twice or more with same metric key might return same instance.
+	 */
+	createIntegerCounterMetric(metricName: string, options?: MetricOptions): CounterMetricDimensionLess;
+	createIntegerCounterMetric(metricName: string, options: MetricOptionsWithDimension): CounterMetricWithDimension;
+
+	/**
+	 * Floating point variant of {@link #createIntegerCounterMetric}.
+	 *
+	 * @param metricName	same restrictions apply as for metricName in {@link #createIntegerCounterMetric}
+	 * @param options 		see {@link #createIntegerCounterMetric}
+	 * @return For details see return value of {@link #createIntegerCounterMetric}.
+	 */
+	createFloatCounterMetric(metricName: string, options?: MetricOptions): CounterMetricDimensionLess;
+	createFloatCounterMetric(metricName: string, options: MetricOptionsWithDimension): CounterMetricWithDimension;
+
+	/**
+	 * Creates an integer gauge metric instance. Gauges can be used for metrics describing a current state like
+	 * temperature, number of items in a cache.
+	 *
+	 * Gauges are intended for periodical sampling and reporting min, max and average of provided samples.
+	 *
+	 * @param metricName	same restrictions apply as for metricName in {@link #createIntegerCounterMetric}
+	 * @param options 		see {@link #createIntegerCounterMetric}
+	 * @return For details see return value of {@link #createIntegerCounterMetric}.
+	 */
+	createIntegerGaugeMetric(metricName: string, options?: MetricOptions): GaugeMetricDimensionLess;
+	createIntegerGaugeMetric(metricName: string, options: MetricOptionsWithDimension): GaugeMetricWithDimension;
+
+	/**
+	 * Floating point variant of {@link #createIntegerGaugeMetric}.
+	 *
+	 * @param metricName	same restrictions apply as for metricName in {@link #createIntegerCounterMetric}
+	 * @param options 		see {@link #createIntegerCounterMetric}
+	 * @return For details see return value of {@link #createIntegerCounterMetric}.
+	 */
+	createFloatGaugeMetric(metricName: string, options?: MetricOptions): GaugeMetricDimensionLess;
+	createFloatGaugeMetric(metricName: string, options: MetricOptionsWithDimension): GaugeMetricWithDimension;
+
+	/**
+	 * Creates an integer statistics metric instance. Statistics can/should be used for event driven metrics like
+	 * packet size of network interface.
+	 *
+	 * Statistics are reporting min, max, average and count.
+	 *
+	 * @param metricName	same restrictions apply as for metricName in {@link #createIntegerCounterMetric}
+	 * @param options 		see {@link #createIntegerCounterMetric}
+	 * @return For details see return value of {@link #createIntegerCounterMetric}.
+	 */
+	createIntegerStatisticsMetric(metricName: string, options?: MetricOptions): StatisticsMetricDimensionLess;
+	createIntegerStatisticsMetric(metricName: string, options: MetricOptionsWithDimension): StatisticsMetricWithDimension;
+
+	/**
+	 * Floating point variant of {@link #createIntegerStatisticsMetric}.
+	 *
+	 * @param metricName	same restrictions apply as for metricName in {@link #createIntegerCounterMetric}
+	 * @param options 		see {@link #createIntegerCounterMetric}
+	 * @return For details see return value of {@link #createIntegerCounterMetric}.
+	 */
+	createFloatStatisticsMetric(metricName: string, options?: MetricOptions): StatisticsMetricDimensionLess;
+	createFloatStatisticsMetric(metricName: string, options: MetricOptionsWithDimension): StatisticsMetricWithDimension;
+
+
 	// ***** various *****
 
 	/**
@@ -575,7 +722,7 @@ export interface OneAgentSDK {
  */
 export function createInstance(): OneAgentSDK {
 	if (typeof __DT_GETAGENTAPI__ === "function") {
-		return  __DT_GETAGENTAPI__(7) || getDummySdk();
+		return  __DT_GETAGENTAPI__(8) || getDummySdk();
 	}
 
 	return getDummySdk();
