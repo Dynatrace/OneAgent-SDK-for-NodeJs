@@ -43,7 +43,8 @@
     "sinon": "7.5.0",
     "source-map-support": "0.5.16",
     "tslint": "5.20.1",
-    "typescript": "3.7.2"
+    "typescript": "3.7.2",
+    "minimist": ">=1.2.2"
   },
   "author": "Dynatrace",
   "license": "Apache-2.0"
