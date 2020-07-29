@@ -1,0 +1,106 @@
+###################################################################################################
+# Details per file setting:
+#   text    These files should be normalized (i.e. convert CRLF to LF).
+#   binary  These files are binary and should be left untouched.
+#
+# Note that binary is a macro for -text -diff.
+#
+# Further read:
+# Official documentation: https://git-scm.com/docs/gitattributes
+# Repository with a collection of templates: https://github.com/alexkaratarakis/gitattributes
+# A util for generating .gitattributes for specific projects: https://gitattributes.io
+###################################################################################################
+
+
+# =================================================================================================
+# SAFE DEFAULTS
+# =================================================================================================
+# Do not touch files not explicitly listed in the 'OVERRIDES' section further below.
+# This tells Git not to attempt any end-of-line conversion upon checkin or checkout.
+*                               -text
+
+
+# =================================================================================================
+# OVERRIDES
+# =================================================================================================
+# <file pattern>                <type>
+
+#-----------------------------------------------------------
+# Common Files
+#-----------------------------------------------------------
+*.txt                           text eol=lf
+*.md                            text eol=lf
+*.csv                           text eol=lf
+*.json                          text eol=lf
+*.xml                           text eol=lf
+*.yaml                          text eol=lf
+*.yml                           text eol=lf
+
+#-----------------------------------------------------------
+# Custom Files
+#-----------------------------------------------------------
+*.conf                          text eol=lf
+*.config                        text eol=lf
+*.editorconfig                  text eol=lf
+*.git*                          text eol=lf
+LICENSE                         text eol=lf
+OWNERS                          text eol=lf
+WATCHERS                        text eol=lf
+
+#-----------------------------------------------------------
+# Do not touch common / custom files used in tests.
+#-----------------------------------------------------------
+**/resources/**                 -text
+
+#-----------------------------------------------------------
+# Shell Scripts
+#-----------------------------------------------------------
+*.sh                            text eol=lf
+# These are explicitly windows files and should use crlf
+*.bat                           text eol=crlf
+*.cmd                           text eol=crlf
+*.ps1                           text eol=crlf
+
+#-----------------------------------------------------------
+# Build, Pipeline & Co
+#-----------------------------------------------------------
+gradlew                         text eol=lf
+*.gradle                        text eol=lf
+*.gradle.kts                    text eol=lf
+*.groovy                        text eol=lf
+jenkinsfile                     text eol=lf
+Jenkinsfile                     text eol=lf
+
+#-----------------------------------------------------------
+# Java
+#-----------------------------------------------------------
+*.java                          text eol=lf diff=java
+*.jsp                           text eol=lf
+*.jspf                          text eol=lf
+*.jspx                          text eol=lf
+*.properties                    text eol=lf
+*.properties_template           text eol=lf
+# Do not touch 'properties' files used in tests.
+**/resources/**/*.properties    -text
+
+#-----------------------------------------------------------
+# Python
+#-----------------------------------------------------------
+*.py                            text eol=lf diff=python
+
+#-----------------------------------------------------------
+#.Net
+#-----------------------------------------------------------
+*.aspx                          text eol=crlf
+
+#-----------------------------------------------------------
+# Web
+#-----------------------------------------------------------
+*.css                           text eol=lf diff=css
+*.gss                           text eol=lf
+*.htm                           text eol=lf diff=html
+*.html                          text eol=lf diff=html
+*.js                            text eol=lf
+*.scss                          text eol=lf
+*.shtml                         text eol=lf diff=html
+*.ts                            text eol=lf

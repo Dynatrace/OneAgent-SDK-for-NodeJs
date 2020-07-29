@@ -457,7 +457,7 @@ export interface OutgoingMessageStartDataChannelType extends MessagingSystemInfo
 	channelType: ChannelType;
 }
 
-export type OutgoingMessageStartData = OutgoingMessageStartDataTcp | OutgoingMessageStartDataDomainSocket |OutgoingMessageStartDataPipe | OutgoingMessageStartDataChannelType;
+export type OutgoingMessageStartData = OutgoingMessageStartDataTcp | OutgoingMessageStartDataDomainSocket | OutgoingMessageStartDataPipe | OutgoingMessageStartDataChannelType;
 
 
 export interface MessageTracerCommon {

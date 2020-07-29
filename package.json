@@ -35,15 +35,15 @@
     "adk"
   ],
   "devDependencies": {
-    "@types/mocha": "7.0.2",
-    "@types/node": "13.9.3",
-    "@types/sinon": "7.5.2",
-    "mocha": "7.1.1",
+    "@types/mocha": "8.0.0",
+    "@types/node": "14.0.27",
+    "@types/sinon": "9.0.4",
+    "mocha": "8.0.1",
     "rimraf": "3.0.2",
-    "sinon": "9.0.1",
-    "source-map-support": "0.5.16",
-    "tslint": "6.1.0",
-    "typescript": "3.8.3"
+    "sinon": "9.0.2",
+    "source-map-support": "0.5.19",
+    "tslint": "6.1.2",
+    "typescript": "3.9.7"
   },
   "author": "Dynatrace",
   "license": "Apache-2.0"
