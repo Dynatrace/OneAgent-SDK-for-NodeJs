@@ -19,7 +19,7 @@ This is the official Node.js implementation of the [Dynatrace OneAgent SDK](http
   * [Trace messaging](#trace-messaging)
   * [Trace SQL database requests](#trace-sql-database-requests)
   * [Set custom request attributes](#set-custom-request-attributes)
-  * [Metrics](#metrics)
+  * [Metrics (deprecated)](#metrics)
 * [Administrative Apis](#administrative-apis)
   * [Current SDK state](#current-sdk-state)
   * [Set callbacks for logging](#set-callbacks-for-logging)
@@ -133,7 +133,7 @@ A more detailed specification of the features can be found in [Dynatrace OneAgen
 |Set result data on SQL database requests |>=1.1.0                                  |
 |Set custom request attributes            |>=1.2.0                                  |
 |Trace Messaging                          |>=1.3.0                                  |
-|Metrics (preview only)                   |>=1.4.0                                  |
+|Metrics (deprecated)                     |>=1.4.0                                  |
 
 ### Trace incoming and outgoing remote calls
 
@@ -409,9 +409,17 @@ Api.addCustomRequestAttribute("fooAttribute", "bar");
 Api.addCustomRequestAttribute("barAttribute", 15.34);
 ```
 
-### Metrics
+<a name="metrics"></a>
 
-**The metrics API is currently part of a preview program and will not work for users outside of the preview program. Visit [Dynatrace Help](https://www.dynatrace.com/support/help/whats-new/preview-and-early-adopter-releases/) for details.**
+### Metrics (deprecated)
+
+> **Note**: The metrics API was part of a
+> [Dynatrace preview program](https://www.dynatrace.com/support/help/whats-new/preview-and-early-adopter-releases/)
+> that has been **discontinued**. All metrics-related APIs and types described below
+> have been **deprecated** and will be removed in a future release.
+> The [Metric ingestion](https://www.dynatrace.com/support/help/how-to-use-dynatrace/metrics/metric-ingestion/)
+> page provides further information on how to replace these APIs and how to report
+> metrics data from now on.
 
 The SDK supports two **metric value types**: `Integer` and `Float` (double precision floating point).
 You should prefer integer metrics as they are more efficient, unless the loss of precision is unacceptable (but
@@ -440,25 +448,7 @@ Otherwise, using the same metric name multiple times is an error. All metrics wi
   * `dimensionName` Optional - a `string` specifying the name of the dimension added to the metric.
   If a name is given here it's required to set a dimension value during booking samples on the metric. A dimension is like an additional label attached to values, for example a "disk.written.bytes" metric could have a dimension name of "disk-id" and when adding values to it a dimension value would be "/dev/sda1".
 
-**Example (see [MetricsSample.js](samples/Metrics/MetricsSample.js) for more details):**
-
-```js
-// create some metrics
-const intCounter = Api.createIntegerCounterMetric("aIntCounter");
-const floatGauge = Api.createFloatGaugeMetric("aFloatGauge", { dimensionName: "aDimName"} );
-const intStatistics = Api.createIntegerStatisticsMetric("aIntStat", { unit: "aUnit"} );
-
-// report some values
-setInterval(() => {
-  intCounter.increaseBy(10 * Math.random());
-  floatGauge.setValue(10 * Math.random(), "firstDim");
-  floatGauge.setValue(10 * Math.random(), "secondDim");
-  intStatistics.addValue(10 * Math.random());
-}, 800);
-
-```
-
-### Administrative Apis
+### Administrative APIs
 
 #### Current SDK state
 
@@ -660,6 +650,7 @@ see also [Releases](https://github.com/Dynatrace/OneAgent-SDK-for-NodeJs/release
 
 |Version|Description                                 |
 |:------|:-------------------------------------------|
+|1.4.1  |deprecate metrics-related types and APIs    |
 |1.4.0  |add support for metrics (preview only)      |
 |1.3.0  |add support to trace messaging              |
 |1.2.2  |don't swallow exceptions                    |

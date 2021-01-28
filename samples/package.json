@@ -1,6 +1,6 @@
 {
   "name": "sdksamples",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Samples showing usage of OneAgent SDK",
   "engines": {
     "node": ">= 8.0.0"
@@ -9,11 +9,10 @@
     "remotecall": "node RemoteCall/OutgoingRemoteCallSample.js",
     "database": "node Database/DatabaseRequestSample.js",
     "customrequestattribute": "node CustomRequestAttributes/CustomRequestAttributesSample.js",
-    "messaging": "node Messaging/MessagingSample.js",
-    "metrics": "node Metrics/MetricsSample.js"
+    "messaging": "node Messaging/MessagingSample.js"
   },
   "dependencies": {
-    "@dynatrace/oneagent-sdk": "1.4.0"
+    "@dynatrace/oneagent-sdk": "1.4.1"
   },
   "repository": {
     "type": "git",
