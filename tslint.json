@@ -11,7 +11,7 @@
 		"arrow-return-shorthand": true,
 		"comment-format": false,
 		"curly": true,
-		"deprecation": true,
+		"deprecation": false,
 		"eofline": true,
 		"import-spacing": true,
 		"no-empty-interface": false,

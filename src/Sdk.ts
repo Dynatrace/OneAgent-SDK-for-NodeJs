@@ -492,6 +492,9 @@ export interface IncomingMessageTracer extends IncomingTaggable, IncomingTracer,
 
 // Types for Metrics
 
+/**
+ * @deprecated This interface is obsolete. Refer to https://github.com/Dynatrace/OneAgent-SDK-for-nodejs#metrics for details.
+ */
 export interface MetricOptions {
 	/**
 	 * Unit of the metric. Only informational and used as label only.
@@ -501,6 +504,9 @@ export interface MetricOptions {
 	unit?: string;
 }
 
+/**
+ * @deprecated This interface is obsolete. Refer to https://github.com/Dynatrace/OneAgent-SDK-for-nodejs#metrics for details.
+ */
 export interface MetricOptionsWithDimension extends MetricOptions {
 	/**
 	 * Name of dimension. Only informational and used as label only.
@@ -509,6 +515,9 @@ export interface MetricOptionsWithDimension extends MetricOptions {
 	dimensionName: string;
 }
 
+/**
+ * @deprecated This interface is obsolete. Refer to https://github.com/Dynatrace/OneAgent-SDK-for-nodejs#metrics for details.
+ */
 export interface CounterMetricDimensionLess {
 	/**
 	 * Increase the counter by provided value.
@@ -517,6 +526,9 @@ export interface CounterMetricDimensionLess {
 	increaseBy(value: number): void;
 }
 
+/**
+ * @deprecated This interface is obsolete. Refer to https://github.com/Dynatrace/OneAgent-SDK-for-nodejs#metrics for details.
+ */
 export interface CounterMetricWithDimension {
 	/**
 	 * Increase the counter by provided value.
@@ -526,6 +538,9 @@ export interface CounterMetricWithDimension {
 	increaseBy(value: number, dimensionValue: string): void;
 }
 
+/**
+ * @deprecated This interface is obsolete. Refer to https://github.com/Dynatrace/OneAgent-SDK-for-nodejs#metrics for details.
+ */
 export interface GaugeMetricDimensionLess {
 	/**
 	 * Set the current value.
@@ -534,6 +549,9 @@ export interface GaugeMetricDimensionLess {
 	setValue(currentValue: number): void;
 }
 
+/**
+ * @deprecated This interface is obsolete. Refer to https://github.com/Dynatrace/OneAgent-SDK-for-nodejs#metrics for details.
+ */
 export interface GaugeMetricWithDimension {
 	/**
 	 * Set the current value.
@@ -543,6 +561,9 @@ export interface GaugeMetricWithDimension {
 	setValue(currentValue: number, dimensionValue: string): void;
 }
 
+/**
+ * @deprecated This interface is obsolete. Refer to https://github.com/Dynatrace/OneAgent-SDK-for-nodejs#metrics for details.
+ */
 export interface StatisticsMetricDimensionLess {
 	/**
 	 * Adds new value to this statistics metric.
@@ -551,6 +572,9 @@ export interface StatisticsMetricDimensionLess {
 	addValue(value: number): void;
 }
 
+/**
+ * @deprecated This interface is obsolete. Refer to https://github.com/Dynatrace/OneAgent-SDK-for-nodejs#metrics for details.
+ */
 export interface StatisticsMetricWithDimension {
 	/**
 	 * Adds new value to this statistics metric.
@@ -632,6 +656,8 @@ export interface OneAgentSDK {
 	 *
 	 * Counter sums up provided samples and reports the sum only.
 	 *
+	 * @deprecated This function is obsolete. Refer to https://github.com/Dynatrace/OneAgent-SDK-for-nodejs#metrics for details.
+	 *
 	 * @param metricName	Name (tenant-wide ID) of the metric. It must be ASCII-compatible, must not contain NUL characters
 	 * 						and must not be longer than 100 bytes.
 	 * @param options		optional options for the metric.
@@ -643,6 +669,8 @@ export interface OneAgentSDK {
 
 	/**
 	 * Floating point variant of {@link #createIntegerCounterMetric}.
+	 *
+	 * @deprecated This function is obsolete. Refer to https://github.com/Dynatrace/OneAgent-SDK-for-nodejs#metrics for details.
 	 *
 	 * @param metricName	same restrictions apply as for metricName in {@link #createIntegerCounterMetric}
 	 * @param options 		see {@link #createIntegerCounterMetric}
@@ -657,6 +685,8 @@ export interface OneAgentSDK {
 	 *
 	 * Gauges are intended for periodical sampling and reporting min, max and average of provided samples.
 	 *
+	 * @deprecated This function is obsolete. Refer to https://github.com/Dynatrace/OneAgent-SDK-for-nodejs#metrics for details.
+	 *
 	 * @param metricName	same restrictions apply as for metricName in {@link #createIntegerCounterMetric}
 	 * @param options 		see {@link #createIntegerCounterMetric}
 	 * @return For details see return value of {@link #createIntegerCounterMetric}.
@@ -666,6 +696,8 @@ export interface OneAgentSDK {
 
 	/**
 	 * Floating point variant of {@link #createIntegerGaugeMetric}.
+	 *
+	 * @deprecated This function is obsolete. Refer to https://github.com/Dynatrace/OneAgent-SDK-for-nodejs#metrics for details.
 	 *
 	 * @param metricName	same restrictions apply as for metricName in {@link #createIntegerCounterMetric}
 	 * @param options 		see {@link #createIntegerCounterMetric}
@@ -680,6 +712,8 @@ export interface OneAgentSDK {
 	 *
 	 * Statistics are reporting min, max, average and count.
 	 *
+	 * @deprecated This function is obsolete. Refer to https://github.com/Dynatrace/OneAgent-SDK-for-nodejs#metrics for details.
+	 *
 	 * @param metricName	same restrictions apply as for metricName in {@link #createIntegerCounterMetric}
 	 * @param options 		see {@link #createIntegerCounterMetric}
 	 * @return For details see return value of {@link #createIntegerCounterMetric}.
@@ -689,6 +723,8 @@ export interface OneAgentSDK {
 
 	/**
 	 * Floating point variant of {@link #createIntegerStatisticsMetric}.
+	 *
+	 * @deprecated This function is obsolete. Refer to https://github.com/Dynatrace/OneAgent-SDK-for-nodejs#metrics for details.
 	 *
 	 * @param metricName	same restrictions apply as for metricName in {@link #createIntegerCounterMetric}
 	 * @param options 		see {@link #createIntegerCounterMetric}

@@ -1,6 +1,6 @@
 {
   "name": "@dynatrace/oneagent-sdk",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Node.js SDK for Dynatrace OneAgent",
   "engines": {
     "node": ">= 6.0.0"
