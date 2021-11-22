@@ -30,7 +30,7 @@ This is the official Node.js implementation of the [Dynatrace OneAgent SDK](http
   * [Message system vendors](#message-system-vendors)
 * [Pass Context](#pass-context)
 * [Further reading](#further-readings)
-* [Help & Support](#help-support)
+* [Help & Support](#help--support)
 * [Release notes](#release-notes)
 
 ## Package contents
@@ -629,7 +629,7 @@ For detailed support policy see [Dynatrace OneAgent SDK help](https://github.com
 * Ask a question in the [product forums](https://answers.dynatrace.com/spaces/482/view.html)
 * Read the [product documentation](https://www.dynatrace.com/support/help/)
 
-### Open a [GitHub issue](https://github.com/Dynatrace/OneAgent-SDK-for-Java/issues) to
+### Open a [GitHub issue](https://github.com/Dynatrace/OneAgent-SDK-for-NodeJs/issues) to
 
 * Report minor defects, minor items or typos
 * Ask for improvements or changes in the SDK API
