@@ -626,8 +626,8 @@ For detailed support policy see [Dynatrace OneAgent SDK help](https://github.com
 
 ### Get Help
 
-* Ask a question in the [product forums](https://answers.dynatrace.com/spaces/482/view.html)
-* Read the [product documentation](https://www.dynatrace.com/support/help/)
+* Ask a question in the [product forums](https://community.dynatrace.com/)
+* Read the [product documentation](https://www.dynatrace.com/support/help)
 
 ### Open a [GitHub issue](https://github.com/Dynatrace/OneAgent-SDK-for-NodeJs/issues) to
 
@@ -637,7 +637,7 @@ For detailed support policy see [Dynatrace OneAgent SDK help](https://github.com
 
 SLAs don't apply for GitHub tickets
 
-### Customers can open a ticket on the [Dynatrace support portal](https://support.dynatrace.com/supportportal/) to
+### Customers can open a ticket on the [Dynatrace support portal](https://dt-url.net/lb626l9) to
 
 * Get support from the Dynatrace technical support engineering team
 * Manage and resolve product related technical issues
