@@ -122,7 +122,7 @@ Please note that OneAgent uses the name of the given functions in `start()` and 
 
 ## Features
 
-The feature sets differ slightly with each language implementation. More functionality will be added over time, see [Planned features for OneAgent SDK](https://answers.dynatrace.com/spaces/483/dynatrace-product-ideas/idea/198106/planned-features-for-oneagent-sdk.html) for details on upcoming features.
+The feature sets differ slightly with each language implementation. More functionality will be added over time, see [Planned features for OneAgent SDK](https://community.dynatrace.com/t5/Feedback-channel/Planned-features-for-OneAgent-SDK/m-p/147331) for details on upcoming features.
 
 A more detailed specification of the features can be found in [Dynatrace OneAgent SDK](https://github.com/Dynatrace/OneAgent-SDK).
 
@@ -613,7 +613,7 @@ function doSomething() {
 ## Further readings
 
 * [What is the OneAgent SDK?](https://www.dynatrace.com/support/help/extend-dynatrace/oneagent-sdk/what-is-oneagent-sdk/) in the Dynatrace documentation
-* [Feedback & Roadmap thread in AnswerHub](https://answers.dynatrace.com/spaces/483/dynatrace-product-ideas/idea/198106/planned-features-for-oneagent-sdk.html)
+* [Feedback & Roadmap thread in dynatrace community](https://community.dynatrace.com/t5/Feedback-channel/Planned-features-for-OneAgent-SDK/m-p/147331)
 * [Dynatrace OneAgent SDK for Node.js: Extend end-to-end visibility](https://www.dynatrace.com/news/blog/dynatrace-oneagent-sdk-for-node-js-extend-end-to-end-visibility/)
 
 ## Help & Support
