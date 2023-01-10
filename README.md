@@ -44,6 +44,8 @@ This is the official Node.js implementation of the [Dynatrace OneAgent SDK](http
 
 * When loading the OneAgent via [OneAgent NPM module](https://www.npmjs.com/package/@dynatrace/oneagent) or a similar tool, make sure to require the SDK after the OneAgent
 * Dynatrace OneAgent (required versions see below)
+* The OneAgent SDK is not supported on serverless code modules, including those for AWS Lambda.
+  Consider using [OpenTelemetry](https://www.dynatrace.com/support/help/shortlink/opentel-lambda) instead in these scenarios.
 
 |OneAgent SDK for Node.js|Required OneAgent version|Support status|
 |:-----------------------|:------------------------|:-------------|
