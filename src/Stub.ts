@@ -188,6 +188,14 @@ function dummySetLoggingCallback(): void {
 	// intentionally empty
 }
 
+function dummyTraceContext(): Sdk.TraceContextInfo {
+	return {
+		isValid: false,
+		traceid: Sdk.invalidTraceId,
+		spanid: Sdk.invalidSpanId
+	};
+}
+
 // ============================================================================
 export function getDummySdk(): Sdk.OneAgentSDK {
 	return {
@@ -214,6 +222,7 @@ export function getDummySdk(): Sdk.OneAgentSDK {
 
 		getCurrentState: dummyGetCurrentState,
 
-		setLoggingCallbacks: dummySetLoggingCallback
+		setLoggingCallbacks: dummySetLoggingCallback,
+		getTraceContextInfo: dummyTraceContext
 	};
 }
