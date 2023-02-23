@@ -20,6 +20,7 @@ This is the official Node.js implementation of the [Dynatrace OneAgent SDK](http
   * [Trace SQL database requests](#trace-sql-database-requests)
   * [Set custom request attributes](#set-custom-request-attributes)
   * [Metrics (deprecated)](#metrics)
+  * [Trace context](#trace-context)
 * [Administrative Apis](#administrative-apis)
   * [Current SDK state](#current-sdk-state)
   * [Set callbacks for logging](#set-callbacks-for-logging)
@@ -45,21 +46,22 @@ This is the official Node.js implementation of the [Dynatrace OneAgent SDK](http
 * When loading the OneAgent via [OneAgent NPM module](https://www.npmjs.com/package/@dynatrace/oneagent) or a similar tool, make sure to require the SDK after the OneAgent
 * Dynatrace OneAgent (required versions see below)
 * The OneAgent SDK is not supported on serverless code modules, including those for AWS Lambda.
-  Consider using [OpenTelemetry](https://www.dynatrace.com/support/help/shortlink/opentel-lambda) instead in these scenarios.
+  In these scenarios consider using [OpenTelemetry](https://www.dynatrace.com/support/help/shortlink/opentel-lambda) instead.
 
-|OneAgent SDK for Node.js|Required OneAgent version|Support status|
-|:-----------------------|:------------------------|:-------------|
-|1.4.x                   |>=1.179                  |Supported     |
-|1.3.x                   |>=1.165                  |Supported     |
-|1.2.x                   |>=1.145                  |Supported     |
-|1.1.x                   |>=1.143                  |Supported     |
-|1.0.x                   |>=1.137                  |Supported     |
+|OneAgent SDK for Node.js|Required OneAgent version|Support status                           |
+|:-----------------------|:------------------------|:----------------------------------------|
+|1.5.x                   |>=1.259                  |Supported                                |
+|1.4.x                   |>=1.179                  |Supported                                |
+|1.3.x                   |>=1.165                  |Deprecated with support ending 2023-08-01|
+|1.2.x                   |>=1.145                  |Deprecated with support ending 2023-08-01|
+|1.1.x                   |>=1.143                  |Deprecated with support ending 2023-08-01|
+|1.0.x                   |>=1.137                  |Deprecated with support ending 2023-08-01|
 
 ## Integration
 
 Using this module should not cause any errors if no OneAgent is present (e.g. in testing).
 
-Make sure that this module is required after Dynatrace OneAgent.
+Make sure that this module is loaded after Dynatrace OneAgent.
 
 ### Installation
 
@@ -67,21 +69,21 @@ Make sure that this module is required after Dynatrace OneAgent.
 
 ### Troubleshooting
 
-If the SDK can't connect to the OneAgent ([Current SDK state](#current-sdk-state) is not `ACTIVE`) verify that a matching version of OneAgent is used *and required before* the SDK module.
+If the SDK cannot connect to the OneAgent ([Current SDK state](#current-sdk-state) is not `ACTIVE`) verify that a matching version of OneAgent is used *and loaded before* the SDK module.
 
 Verify that OneAgent is working as intended (see [Dynatrace OneAgent](https://www.dynatrace.com/technologies/nodejs-monitoring/)).
 
 You should ensure that you have set [LoggingCallbacks](#set-callbacks-for-logging).
 
-OneAgent transparently wrap *supported* libraries to add context information. For every yet *unsupported* module [Pass Context](#pass-context) can be used to provide transactional context to callbacks.
+OneAgent transparently wraps *supported* libraries to add context information. For every currently *unsupported* module [Pass Context](#pass-context) can be used to provide transactional context to callbacks.
 
 ## API Concepts
 
-Common concepts of the Dynatrace OneAgent SDK are explained the [Dynatrace OneAgent SDK repository](https://github.com/Dynatrace/OneAgent-SDK).
+Common concepts of the Dynatrace OneAgent SDK are explained in the [Dynatrace OneAgent SDK repository](https://github.com/Dynatrace/OneAgent-SDK).
 
 ### OneAgentSDK object
 
-The first step is to acquire an OneAgent SDK API object by calling `createInstance()`. The resulting object holds methods to create tracers, administrative methods (e.g. check SDK state, install logging callbacks) and `passContext()`. Every call to `createInstance()` will return a new API object allowing the user to install separate logging callbacks for separate use cases.
+The first step is to acquire a OneAgent SDK API object by calling `createInstance()`. The resulting object holds methods to create tracers, administrative methods (e.g. check SDK state, install logging callbacks) and `passContext()`. Every call to `createInstance()` will return a new API object allowing the user to install separate logging callbacks for separate use cases.
 
 ```js
 const Sdk = require('@dynatrace/oneagent-sdk');
@@ -94,8 +96,8 @@ The life-cycle of a tracer is as follows:
 
 1. Create a trace using the `traceXXX` method matching to your use case. For incoming taggable traces pass the received Dynatrace tag (if present) to the `traceXXX` method.
 1. Start the trace which in turn invokes and times the given handler function.
-1. For outgoing taggable traces fetch a Dynatrace tag and include it to the message sent out.
-1. Optional mark the traced operation as failed via a call to `error()`
+1. For outgoing taggable traces fetch a Dynatrace tag and include it to the message being sent.
+1. Optionally mark the traced operation as failed via a call to `error()`
 1. End the trace once the operation is done. For outgoing traces you may pass a callback to be included in this trace.
 
 Each tracer offers following methods:
@@ -115,8 +117,8 @@ Tracers for outgoing taggable requests additionally offer following methods to g
 * `getDynatraceStringTag()` returns a Dynatrace tag encoded as `string`
 * `getDynatraceByteTag()` returns a Dynatrace tag binary encoded as `Buffer`
 
-This Dynatrace tag needs to be embedded into the message sent to remote service. Depending on the concrete protocol used the `string` or binary representation may fit better and it's up to the user to decide which variant to use.
-On incoming service this tag needs to be extracted by the user and passed to the corresponding `traceXXX` method using the `dynatraceTag` property of the arguments to allow linking of outgoing and the corresponding incoming trace.
+This Dynatrace tag needs to be embedded into the message sent to remote service. The `string` or binary representation may fit better depending on the concrete protocol used. It is up to the user to decide which variant to use.
+On an incoming service this tag needs to be extracted by the user and passed to the corresponding `traceXXX` method using the `dynatraceTag` property of the arguments to allow linking of outgoing and the corresponding incoming trace.
 
 The tracer objects returned by above methods are always valid even if there is no OneAgent present or no trace is created for whatever reason. In this case the methods are still present to avoid the need of extra checking in client code.
 
@@ -136,6 +138,7 @@ A more detailed specification of the features can be found in [Dynatrace OneAgen
 |Set custom request attributes            |>=1.2.0                                  |
 |Trace Messaging                          |>=1.3.0                                  |
 |Metrics (deprecated)                     |>=1.4.0                                  |
+|Trace context                            |>=1.5.0                                  |
 
 ### Trace incoming and outgoing remote calls
 
@@ -356,7 +359,7 @@ It receives an object with following properties:
 * `rowsReturned` Optional - Number of rows returned by this traced database request. Only positive values are allowed
 * `roundTripCount` Optional - Count of round-trips that took place. Only positive values are allowed
 
-Please note that SQL database traces are only created if they occur within some other SDK trace (e.g. incoming remote call) or an OneAgent built-in trace (e.g. incoming web request).
+Please note that SQL database traces are only created if they occur within some other SDK trace (e.g. incoming remote call) or a OneAgent built-in trace (e.g. incoming web request).
 
 **Example (see [DatabaseRequestSample.js](samples/Database/DatabaseRequestSample.js) for more details):**
 
@@ -449,6 +452,10 @@ Otherwise, using the same metric name multiple times is an error. All metrics wi
   * `unit` Optional - a string that will be displayed when browsing for metrics in the Dynatrace UI.
   * `dimensionName` Optional - a `string` specifying the name of the dimension added to the metric.
   If a name is given here it's required to set a dimension value during booking samples on the metric. A dimension is like an additional label attached to values, for example a "disk.written.bytes" metric could have a dimension name of "disk-id" and when adding values to it a dimension value would be "/dev/sda1".
+
+### Trace context
+The implementation follows the specification from [Dynatrace OneAgent SDK - Trace Context](https://github.com/Dynatrace/OneAgent-SDK#tracecontext).
+For an usage example refer to [W3CTraceContextApiSample.js](samples/TraceContext/W3CTraceContextApiSample.js).
 
 ### Administrative APIs
 
@@ -579,7 +586,7 @@ collection.findOne({_id: doc_id}, callback);
 
 ```
 
-After `collection.findOne()` is executed asynchronously `callback()` will be called. `callback()` again contains an asynchronous call `http.get()` which performs an outbound HTTP request. If there is a current transactional context with an ongoing trace, Dynatrace OneAgent will transparently add a HTTP header containing a Dynatrace tag to this outbound request. The next tier - if instrumented with OneAgent - will continue this trace then. Without further intervention any transactional context would get lost between asynchronous invocation and a callback. Currently the only reliable way to pass over context information to a callback is called 'wrapping'.
+After `collection.findOne()` is executed asynchronously `callback()` will be called. `callback()` again contains an asynchronous call `http.get()` which performs an outbound HTTP request. If there is a current transactional context with an ongoing trace, Dynatrace OneAgent will transparently add a HTTP header containing a Dynatrace tag to this outbound request. The next tier - if instrumented with OneAgent - will continue this trace then. Without further intervention any transactional context would be lost between asynchronous invocation and a callback. Currently the only reliable way to pass over context information to a callback is called 'wrapping'.
 
 **Example: Regular callbacks**
 Assume `some.asyncFunction()` in below sample causes loss of transactional context in OneAgent. To ensure that OneAgent correctly shows activities triggered inside the callback of this function `passContext()` can be used to create a closure preserving the transactional context active at call time of `some.asyncFunction()`.
@@ -650,14 +657,15 @@ SLAs apply according to the customer's support level.
 
 see also [Releases](https://github.com/Dynatrace/OneAgent-SDK-for-NodeJs/releases)
 
-|Version|Description                                 |
-|:------|:-------------------------------------------|
-|1.4.1  |deprecate metrics-related types and APIs    |
-|1.4.0  |add support for metrics (preview only)      |
-|1.3.0  |add support to trace messaging              |
-|1.2.2  |don't swallow exceptions                    |
-|1.2.1  |improve type definitions                    |
-|1.2.0  |add support for custom request attributes   |
-|1.1.0  |add setResultData() for SQL Database tracer |
-|1.0.3  |early access to beta                        |
-|1.0.1  |Initial release                             |
+|Version|Description                                              |
+|:------|:--------------------------------------------------------|
+|1.5.0  |deprecate old SDK Versions, add TraceContextInfo support |
+|1.4.1  |deprecate metrics-related types and APIs                 |
+|1.4.0  |add support for metrics (preview only)                   |
+|1.3.0  |add support to trace messaging                           |
+|1.2.2  |don't swallow exceptions                                 |
+|1.2.1  |improve type definitions                                 |
+|1.2.0  |add support for custom request attributes                |
+|1.1.0  |add setResultData() for SQL Database tracer              |
+|1.0.3  |early access to beta                                     |
+|1.0.1  |Initial release                                          |

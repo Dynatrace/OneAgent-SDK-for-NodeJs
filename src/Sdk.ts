@@ -584,6 +584,18 @@ export interface StatisticsMetricWithDimension {
 	addValue(value: number, dimensionValue?: string): void;
 }
 
+export const invalidSpanId = "0000000000000000";
+export const invalidTraceId = "00000000000000000000000000000000";
+
+/**
+ * TraceContextInfo is used to carry the traceid and spanid internally used in OneAgent
+ */
+export interface TraceContextInfo {
+	isValid: boolean;
+	traceid: string;
+	spanid: string;
+}
+
 // ============================================================================
 
 /**
@@ -748,6 +760,19 @@ export interface OneAgentSDK {
 	 * @param callbacks Specifies callbacks for logging
 	 */
 	setLoggingCallbacks(callbacks?: LoggingCallbacks): void;
+
+	// ***** trace context *****
+
+	/**
+	 * Provides TraceContext information about the currently active trace.
+	 * It uses the TraceContext (TraceId, SpanId) model as defined
+	 * in https://www.w3.org/TR/trace-context.
+	 * The returned information is not intended for tagging and context-propagation
+	 * scenarios and primarily designed for log-enrichment use cases.
+	 *
+	 * @return see {@link TraceContextInfo} for more details.
+	 */
+	getTraceContextInfo(): TraceContextInfo;
 }
 
 
@@ -758,7 +783,7 @@ export interface OneAgentSDK {
  */
 export function createInstance(): OneAgentSDK {
 	if (typeof __DT_GETAGENTAPI__ === "function") {
-		return  __DT_GETAGENTAPI__(8) || getDummySdk();
+		return  __DT_GETAGENTAPI__(9) || getDummySdk();
 	}
 
 	return getDummySdk();

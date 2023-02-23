@@ -41,7 +41,7 @@ describe("Sdk with agent", () => {
 		const sdkApi = Sdk.createInstance();
 		Assert.strictEqual(typeof sdkApi, "object");
 		Sinon.assert.callCount(getSdkStub, 1);
-		Sinon.assert.alwaysCalledWith(getSdkStub, 8);
+		Sinon.assert.alwaysCalledWith(getSdkStub, 9);
 		Assert.strictEqual(sdkApi.getCurrentState(), Sdk.SDKState.PERMANENTLY_INACTIVE);
 	});
 
@@ -57,7 +57,7 @@ describe("Sdk with agent", () => {
 		const sdkApi = Sdk.createInstance();
 		Assert.strictEqual(sdkApi, agentSdk);
 		Sinon.assert.callCount(getSdkStub, 1);
-		Sinon.assert.alwaysCalledWith(getSdkStub, 8);
+		Sinon.assert.alwaysCalledWith(getSdkStub, 9);
 		Assert.strictEqual(sdkApi.getCurrentState(), Sdk.SDKState.ACTIVE);
 	});
 
@@ -93,6 +93,14 @@ describe("Sdk with agent", () => {
 			Assert.strictEqual(typeof SdkAsAny.MessageDestinationType, "object");
 			Assert.strictEqual(typeof Sdk.MessageDestinationType.QUEUE, "number");
 			Assert.strictEqual(Sdk.MessageDestinationType.TOPIC, 1);
+		});
+
+		it("TraceContext", () => {
+			Assert.strictEqual(Sdk.invalidSpanId, "0000000000000000");
+			Assert.strictEqual(Sdk.invalidTraceId, "00000000000000000000000000000000");
+
+			Assert.strictEqual(typeof Sdk.invalidSpanId, "string");
+			Assert.strictEqual(typeof Sdk.invalidTraceId, "string");
 		});
 	});
 });

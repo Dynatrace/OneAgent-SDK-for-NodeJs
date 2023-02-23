@@ -124,7 +124,7 @@ describe("Dummy", () => {
 	it("Api count", () => {
 		// verify the number of exported APIs. Mainly to get a hint to add tests...
 		const apis = Object.getOwnPropertyNames(Api);
-		Assert.strictEqual(apis.length, 15);
+		Assert.strictEqual(apis.length, 16);
 	});
 
 	// ========================================================================
@@ -243,5 +243,12 @@ describe("Dummy", () => {
 		Api.setLoggingCallbacks({ error: cb });
 		Api.setLoggingCallbacks({});
 		Api.setLoggingCallbacks();
+	});
+
+	// ========================================================================
+	it("traceContext", () => {
+		Assert.strictEqual(Api.getTraceContextInfo().isValid, false);
+		Assert.strictEqual(Api.getTraceContextInfo().traceid, Sdk.invalidTraceId);
+		Assert.strictEqual(Api.getTraceContextInfo().spanid, Sdk.invalidSpanId);
 	});
 });
